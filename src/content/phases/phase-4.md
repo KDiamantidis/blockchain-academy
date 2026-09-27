@@ -9,66 +9,66 @@ steps:
     group: 'Speedrun Ethereum: τα βασικά challenges'
     title: 'Speedrun Ethereum: Challenge #0 Tokenization'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/tokenization
     required: true
     note: Το πρώτο challenge. Στήνεις το Scaffold-ETH 2 και φτιάχνεις το πρώτο σου token contract με front-end.
   - id: p4-speedrun-1
     group: 'Speedrun Ethereum: τα βασικά challenges'
     title: 'Challenge #1 Crowdfunding'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/crowdfunding
     required: true
     note: Ένα contract που μαζεύει χρήματα από πολλούς χρήστες και αποφασίζει τι θα γίνουν.
   - id: p4-speedrun-2
     group: 'Speedrun Ethereum: τα βασικά challenges'
     title: 'Challenge #2 Token Vendor'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/token-vendor
     required: true
     note: Ένα contract που πουλάει και αγοράζει tokens.
   - id: p4-speedrun-3
     group: 'Speedrun Ethereum: τα βασικά challenges'
     title: 'Challenge #3 Dice Game'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/dice-game
     required: true
     note: Η πρώτη σου «επίθεση». Προβλέπεις αδύναμη τυχαιότητα και κερδίζεις το παιχνίδι.
   - id: p4-speedrun-4
     group: 'Speedrun Ethereum: τα βασικά challenges'
     title: 'Challenge #4 Build a DEX'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/dex
     required: true
     note: Φτιάχνεις ένα μικρό decentralized exchange.
   - id: p4-speedrun-5
     group: 'Speedrun Ethereum: προχωρημένα challenges'
     title: 'Challenge #5 Oracles'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/oracles
     required: false
   - id: p4-speedrun-6
     group: 'Speedrun Ethereum: προχωρημένα challenges'
     title: 'Challenge #6 Over-Collateralized Lending'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/over-collateralized-lending
     required: false
   - id: p4-speedrun-7
     group: 'Speedrun Ethereum: προχωρημένα challenges'
     title: 'Challenge #7 Stablecoins'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/stablecoins
     required: false
   - id: p4-speedrun-8
     group: 'Speedrun Ethereum: προχωρημένα challenges'
     title: 'Challenge #8 Prediction Markets'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/prediction-markets
     required: false
   - id: p4-speedrun-9
     group: 'Speedrun Ethereum: προχωρημένα challenges'
     title: 'Challenge #9 ZK Voting'
     provider: Speedrun Ethereum
-    url: https://speedrunethereum.com/
+    url: https://speedrunethereum.com/challenge/zk-voting
     required: false
     highlight: Σχετικό με την ιδέα του Voting dApp στα Ομαδικά Projects.
   - id: p4-cyfrin-foundry
@@ -86,7 +86,7 @@ checks:
 pitfalls:
   - Βάζεις το private key του deployer σε αρχείο που ανεβαίνει στο GitHub. Έλεγξε το .gitignore πριν από κάθε push.
   - Κάνεις deploy με wallet που έχει πραγματικά χρήματα. Χρησιμοποίησε μόνο το wallet για testnets.
-  - Κολλάς σε faucet που δεν σου δίνει ETH. Τα faucets έχουν όρια. Ρώτα στο #block-chain πριν χάσεις ώρες.
+  - 'Κολλάς σε faucet που δεν σου δίνει ETH. Τα faucets έχουν όρια. Ρώτα στο #block-chain πριν χάσεις ώρες.'
 ---
 
 ## Πριν ξεκινήσεις: setup

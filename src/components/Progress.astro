@@ -1,4 +1,6 @@
 ---
+import { plural } from '../lib/site';
+
 interface Props {
   label: string;
   phase?: number;
@@ -17,12 +19,12 @@ const scope = phase === undefined ? { 'data-overall': '' } : { 'data-phase': pha
         <span class="addr prog__num">
           <span data-overall-pct>0%</span>{" "}
           <span class="prog__sub">
-            (<span data-overall-count>0/{reqTotal}</span> υποχρεωτικά βήματα)
+            (<span data-overall-count>0/{reqTotal}</span> {plural(reqTotal, 'υποχρεωτικό βήμα', 'υποχρεωτικά βήματα')})
           </span>
         </span>
       ) : (
         <span class="addr prog__num">
-          <span data-count-req>0/{reqTotal}</span> υποχρεωτικά
+          <span data-count-req>0/{reqTotal}</span> {plural(reqTotal, 'υποχρεωτικό', 'υποχρεωτικά')}
         </span>
       )
     }

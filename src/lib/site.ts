@@ -44,6 +44,10 @@ export function shortHash(hash: string): string {
   return `${hash.slice(0, 6)}…${hash.slice(-4)}`;
 }
 
+export function plural(n: number, one: string, many: string): string {
+  return n === 1 ? one : many;
+}
+
 export function stepsPayload(phase: Phase) {
   return phase.data.steps.map((s) => ({ id: s.id, r: s.required ? 1 : 0 }));
 }

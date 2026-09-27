@@ -2,7 +2,7 @@
 order: 0
 title: Προετοιμασία
 goal: Να έχεις τα εργαλεία και την ελάχιστη βάση σε προγραμματισμό.
-prerequisites: Καμία. Από εδώ ξεκινάνε όλοι.
+prerequisites: Κανένα. Από εδώ ξεκινάνε όλοι.
 terms: [git, wallet, private-key, seed-phrase, testnet]
 steps:
   - id: p0-github-skills

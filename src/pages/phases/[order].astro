@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
 import Progress from '../../components/Progress.astro';
-import { REPO_URL, blockHash, blockLabel, getPhases, href, phaseHref, shortHash, type Phase } from '../../lib/site';
+import { REPO_URL, blockHash, blockLabel, getPhases, href, phaseHref, plural, shortHash, type Phase } from '../../lib/site';
 
 export async function getStaticPaths() {
   const phases = await getPhases();
@@ -28,6 +28,7 @@ const terms = data.terms
   .map((id) => glossary.find((g) => g.id === id))
   .filter((g): g is NonNullable<typeof g> => Boolean(g));
 const reqTotal = data.steps.filter((s) => s.required).length;
+const PROJECTS_LINK = 'Ομαδικά Projects';
 const editUrl = `${REPO_URL}/edit/main/src/content/phases/${phase.id}.md`;
 
 type Indexed = { step: (typeof data.steps)[number]; n: number };
@@ -56,7 +57,9 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
         <span class="ph-head__phase">Φάση {data.order}</span>
         <span class="addr">{blockLabel(data.order)}</span>
         <span class="addr ph-head__hash" title={blockHash(data.order)} aria-hidden="true">hash {shortHash(blockHash(data.order))}</span>
-        <span class="addr ph-head__count">{data.steps.length} βήματα · {reqTotal} υποχρεωτικά</span>
+        <span class="addr ph-head__count">
+          {data.steps.length} {plural(data.steps.length, 'βήμα', 'βήματα')} · {reqTotal} {plural(reqTotal, 'υποχρεωτικό', 'υποχρεωτικά')}
+        </span>
         <span class="tag tag--here ph-head__here">εδώ είσαι</span>
       </div>
       <div class="ph-head__body">
@@ -105,7 +108,9 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
             {seg.group && (
               <h3 class="step-group__title">
                 {seg.group}
-                <span class="addr step-group__count">{seg.items.length} βήματα</span>
+                <span class="addr step-group__count">
+                  {seg.items.length} {plural(seg.items.length, 'βήμα', 'βήματα')}
+                </span>
               </h3>
             )}
             <ol class="steps">
@@ -167,7 +172,9 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
                       <p class="step__highlight">
                         <Icon name="info" size={17} />
                         <span>
-                          {s.highlight} <a href={href('projects/')}>Ομαδικά Projects</a>
+                          {s.highlight
+                            .split(PROJECTS_LINK)
+                            .map((part, i) => (i ? <><a href={href('projects/')}>{PROJECTS_LINK}</a>{part}</> : part))}
                         </span>
                       </p>
                     )}
@@ -188,7 +195,9 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
 
     <section class="ph-section" aria-labelledby="checks-title">
       <h2 id="checks-title">Πριν προχωρήσεις</h2>
-      <p class="ph-section__lead">Αν μπορείς να απαντήσεις σε αυτές τις ερωτήσεις με δικά σου λόγια, μπορείς να προχωρήσεις στην επόμενη φάση. Αν όχι, γύρνα πίσω στο υλικό ή ρώτα στο <strong class="mono">#block-chain</strong>.</p>
+      <p class="ph-section__lead">
+        Αν μπορείς να απαντήσεις σε αυτές τις ερωτήσεις με δικά σου λόγια, {next ? 'μπορείς να προχωρήσεις στην επόμενη φάση.' : <>τελείωσες τον οδηγό και μπορείς να μπεις στα <a href={href('projects/')}>{PROJECTS_LINK}</a>.</>} Αν όχι, γύρνα πίσω στο υλικό ή ρώτα στο <strong class="mono">#block-chain</strong>.
+      </p>
       <ol class="checks">
         {data.checks.map((q) => <li>{q}</li>)}
       </ol>

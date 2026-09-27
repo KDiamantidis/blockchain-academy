@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { GENESIS_HASH, blockHash, blockLabel, href, parentOf, phaseHref, shortHash, type Phase } from '../lib/site';
+import { GENESIS_HASH, blockHash, blockLabel, href, parentOf, phaseHref, plural, shortHash, type Phase } from '../lib/site';
 
 interface Props {
   phases: Phase[];
@@ -69,7 +69,7 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
                 <span class="blk__name">{p.data.title}</span>
                 {!full && (
                   <span class="visually-hidden">
-                    , <span data-count-req>0/{reqCount}</span> υποχρεωτικά βήματα
+                    , <span data-count-req>0/{reqCount}</span> {plural(reqCount, 'υποχρεωτικό βήμα', 'υποχρεωτικά βήματα')}
                   </span>
                 )}
               </a>
@@ -84,9 +84,9 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
               </div>
               {full && (
                 <p class="blk__meta addr">
-                  <span data-count-req>0/{reqCount}</span> υποχρεωτικά
+                  <span data-count-req>0/{reqCount}</span> {plural(reqCount, 'υποχρεωτικό', 'υποχρεωτικά')}
                   <span class="blk__dot">·</span>
-                  <span data-count-all>0/{p.data.steps.length}</span> βήματα
+                  <span data-count-all>0/{p.data.steps.length}</span> {plural(p.data.steps.length, 'βήμα', 'βήματα')}
                 </p>
               )}
             </div>

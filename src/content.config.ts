@@ -15,7 +15,8 @@ const step = z.object({
   sectionsLabel: z.string().default('Ενότητες'),
   // Rendered behind a disclosure so CTF levels are not spoiled.
   hint: z.string().optional(),
-  highlight: z.string().optional(),
+  // The words "Ομαδικά Projects" in the text become the link to the projects page.
+  highlight: z.string().includes('Ομαδικά Projects', 'highlight: must mention "Ομαδικά Projects"').optional(),
   // Consecutive steps with the same group are shown under one sub-heading.
   group: z.string().optional(),
   warning: z.string().optional(),

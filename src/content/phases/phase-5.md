@@ -9,84 +9,84 @@ steps:
     group: 'Ethernaut: levels 0–5'
     title: 'Ethernaut, level 0: Hello Ethernaut'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/0
     required: true
     note: Μαθαίνεις να μιλάς με ένα contract από την console του browser.
   - id: p5-ethernaut-1
     group: 'Ethernaut: levels 0–5'
     title: 'Level 1: Fallback'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/1
     required: true
     hint: Τι κάνουν οι συναρτήσεις fallback και receive, και ποιος μπορεί να τις καλέσει.
   - id: p5-ethernaut-2
     group: 'Ethernaut: levels 0–5'
     title: 'Level 2: Fallout'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/2
     required: true
     hint: Πώς γράφονταν οι constructors στις παλιές εκδόσεις και γιατί ένα τυπογραφικό λάθος κοστίζει.
   - id: p5-ethernaut-3
     group: 'Ethernaut: levels 0–5'
     title: 'Level 3: Coin Flip'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/3
     required: true
     hint: Γιατί τα δεδομένα του block δεν είναι πηγή τυχαιότητας.
   - id: p5-ethernaut-4
     group: 'Ethernaut: levels 0–5'
     title: 'Level 4: Telephone'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/4
     required: true
     hint: Η διαφορά ανάμεσα σε tx.origin και msg.sender.
   - id: p5-ethernaut-5
     group: 'Ethernaut: levels 0–5'
     title: 'Level 5: Token'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/5
     required: true
     hint: Integer underflow στις εκδόσεις πριν από τη Solidity 0.8.
   - id: p5-ethernaut-6
     group: 'Ethernaut: levels 6–11'
     title: 'Level 6: Delegation'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/6
     required: true
     hint: Τι κάνει το delegatecall με το storage του contract που το καλεί.
   - id: p5-ethernaut-7
     group: 'Ethernaut: levels 6–11'
     title: 'Level 7: Force'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/7
     required: true
     hint: Τρόποι να στείλεις ETH σε ένα contract που δεν το δέχεται.
   - id: p5-ethernaut-8
     group: 'Ethernaut: levels 6–11'
     title: 'Level 8: Vault'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/8
     required: true
     hint: Γιατί το private δεν σημαίνει κρυφό όταν όλα είναι on-chain.
   - id: p5-ethernaut-9
     group: 'Ethernaut: levels 6–11'
     title: 'Level 9: King'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/9
     required: true
     hint: Denial of service, όταν ένα contract περιμένει ότι η μεταφορά ETH θα πετύχει πάντα.
   - id: p5-ethernaut-10
     group: 'Ethernaut: levels 6–11'
     title: 'Level 10: Re-entrancy'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/10
     required: true
     hint: Reentrancy και το pattern checks-effects-interactions.
   - id: p5-ethernaut-11
     group: 'Ethernaut: levels 6–11'
     title: 'Level 11: Elevator'
     provider: OpenZeppelin
-    url: https://ethernaut.openzeppelin.com/
+    url: https://ethernaut.openzeppelin.com/level/11
     required: true
     hint: Γιατί δεν εμπιστεύεσαι ένα εξωτερικό contract να απαντήσει με συνέπεια.
   - id: p5-ethernaut-12-plus
