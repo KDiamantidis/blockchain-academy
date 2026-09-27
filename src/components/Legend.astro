@@ -4,8 +4,9 @@ import Icon from './Icon.astro';
 
 <details class="legend" open data-legend>
   <summary class="legend__title">
-    <span class="addr">Υπόμνημα</span>
+    <span class="addr legend__label">Υπόμνημα</span>
     <span class="legend__hint">τι σημαίνουν τα χρώματα</span>
+    <span class="legend__cta">Τι σημαίνουν τα χρώματα;</span>
     <span class="legend__toggle"><Icon name="plus" size={16} /></span>
   </summary>
   <ul class="legend__list">
@@ -41,6 +42,10 @@ import Icon from './Icon.astro';
     </li>
   </ul>
 </details>
+<script is:inline>
+  // Runs before first paint so phones get a closed legend without a flash; without JS it stays open.
+  if (matchMedia('(max-width: 767px)').matches) document.currentScript.previousElementSibling.open = false;
+</script>
 
 <style>
   .legend {
@@ -70,6 +75,20 @@ import Icon from './Icon.astro';
   .legend__hint {
     font-size: 0.85rem;
     color: var(--ink-3);
+  }
+  .legend__cta {
+    display: none;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  @media (max-width: 767px) {
+    .legend__label,
+    .legend__hint {
+      display: none;
+    }
+    .legend__cta {
+      display: inline;
+    }
   }
   .legend__toggle {
     display: inline-flex;

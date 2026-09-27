@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
+import Join from '../components/Join.astro';
 import { href } from '../lib/site';
 
 const rules = [
@@ -154,12 +155,19 @@ const rules = [
         </div>
       </details>
     </section>
+
+    <div class="join-wrap">
+      <Join />
+    </div>
   </div>
 </Base>
 
 <style>
   .page {
     padding-top: 48px;
+  }
+  .join-wrap {
+    margin-top: 48px;
   }
   .fq-lead {
     margin-top: 12px;

@@ -1,0 +1,52 @@
+---
+import Icon from './Icon.astro';
+
+// Shown on the home page and the FAQ: change the joining instructions here only.
+const email = 'kociama@cs.duth.gr';
+---
+
+<section class="join" aria-labelledby="join-title">
+  <span class="join__icon" aria-hidden="true"><Icon name="chat" size={20} /></span>
+  <div class="join__body">
+    <h2 id="join-title" class="join__title">Θες να μπεις στην ομάδα;</h2>
+    <p class="join__text">
+      Στείλε μου email στο <a href={`mailto:${email}`}>{email}</a> και θα σου στείλω πρόσκληση για το Discord.
+    </p>
+  </div>
+</section>
+
+<style>
+  .join {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .join__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green-ink);
+  }
+  .join__body {
+    display: grid;
+    gap: 6px;
+  }
+  .join__title {
+    font-size: 1.25rem;
+  }
+  .join__text {
+    color: var(--ink-2);
+  }
+  .join__text a {
+    overflow-wrap: anywhere;
+  }
+</style>

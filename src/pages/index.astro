@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Graph from '../components/Graph.astro';
 import Icon from '../components/Icon.astro';
+import Join from '../components/Join.astro';
 import { getPhases, href } from '../lib/site';
 
 const phases = await getPhases();
@@ -95,6 +96,10 @@ const phases = await getPhases();
       </figure>
     </div>
   </section>
+
+  <div class="wrap join-wrap">
+    <Join />
+  </div>
 
   <section class="next wrap" aria-labelledby="next-title">
     <h2 id="next-title" class="visually-hidden">Επόμενα βήματα</h2>
@@ -257,6 +262,10 @@ const phases = await getPhases();
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--ink-3);
+  }
+
+  .join-wrap {
+    margin-bottom: 40px;
   }
 
   .next {

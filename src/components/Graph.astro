@@ -84,8 +84,7 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
               </div>
               {full && (
                 <p class="blk__meta addr">
-                  <span data-count-req>0/{reqCount}</span> {plural(reqCount, 'υποχρεωτικό', 'υποχρεωτικά')}
-                  <span class="blk__dot">·</span>
+                  <span data-count-req>0/{reqCount}</span> {plural(reqCount, 'υποχρεωτικό', 'υποχρεωτικά')} ·{' '}
                   <span data-count-all>0/{p.data.steps.length}</span> {plural(p.data.steps.length, 'βήμα', 'βήματα')}
                 </p>
               )}
@@ -410,10 +409,6 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
 
   .blk__meta {
     font-size: 0.78rem;
-  }
-
-  .blk__dot {
-    margin-inline: 0.35em;
   }
 
   @media (hover: hover) and (pointer: fine) {
