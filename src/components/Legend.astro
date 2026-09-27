@@ -1,0 +1,156 @@
+---
+import Icon from './Icon.astro';
+---
+
+<details class="legend" open data-legend>
+  <summary class="legend__title">
+    <span class="addr">Υπόμνημα</span>
+    <span class="legend__hint">τι σημαίνουν τα χρώματα</span>
+    <span class="legend__toggle"><Icon name="plus" size={16} /></span>
+  </summary>
+  <ul class="legend__list">
+    <li>
+      <svg class="legend__sym" viewBox="0 0 36 12" aria-hidden="true"><g fill="none" stroke="var(--green)" stroke-width="2"><rect x="1" y="2" width="11" height="8" rx="4"></rect><rect x="23" y="2" width="11" height="8" rx="4"></rect></g><rect x="10" y="5" width="15" height="2" rx="1" fill="var(--green)"></rect></svg>
+      <span><strong>Πράσινη αλυσίδα:</strong> η κύρια διαδρομή, οι φάσεις με τη σειρά. Γίνεται έντονη όταν επιβεβαιωθεί το block από πάνω.</span>
+    </li>
+    <li>
+      <svg class="legend__sym" viewBox="0 0 36 12" aria-hidden="true"><g fill="none" stroke="var(--blue)" stroke-width="2"><rect x="1" y="2" width="11" height="8" rx="4"></rect><rect x="23" y="2" width="11" height="8" rx="4"></rect></g><rect x="10" y="5" width="15" height="2" rx="1" fill="var(--blue)"></rect></svg>
+      <span><strong>Μπλε αλυσίδα:</strong> παράλληλη φάση, ένα πλαϊνό κλαδί που κάνεις μαζί με άλλη φάση.</span>
+    </li>
+    <li>
+      <span class="legend__sym legend__cells" aria-hidden="true">
+        <span class="lc lc--req lc--done"></span><span class="lc lc--req"></span><span class="lc lc--opt"></span>
+      </span>
+      <span><strong>Τετράγωνα:</strong> ένα για κάθε βήμα. Γεμάτο σημαίνει ότι το έκανες. Τα διακεκομμένα είναι προαιρετικά.</span>
+    </li>
+    <li>
+      <span class="legend__sym legend__here" aria-hidden="true"></span>
+      <span><strong>Κίτρινο, «εδώ είσαι»:</strong> η φάση όπου βρίσκεσαι. Εκεί που σε έστειλε το quiz ή η πρώτη με υποχρεωτικά βήματα χωρίς τσεκ.</span>
+    </li>
+    <li>
+      <span class="legend__sym legend__word addr" aria-hidden="true">hash</span>
+      <span><strong>hash:</strong> το «δακτυλικό αποτύπωμα» του block, μοναδικό για κάθε φάση.</span>
+    </li>
+    <li>
+      <span class="legend__sym legend__word addr" aria-hidden="true">prev</span>
+      <span><strong>prevHash:</strong> το hash του προηγούμενου block. Έτσι τα blocks δένονται σε αλυσίδα.</span>
+    </li>
+    <li>
+      <span class="legend__sym legend__status" aria-hidden="true"><span class="legend__ok"></span><span class="legend__pend"></span></span>
+      <span><strong>confirmed / pending:</strong> confirmed όταν τελειώσεις όλα τα υποχρεωτικά βήματα. Μέχρι τότε το block είναι pending (διακεκομμένο).</span>
+    </li>
+  </ul>
+</details>
+
+<style>
+  .legend {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .legend__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 6px 16px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .legend__title::-webkit-details-marker {
+    display: none;
+  }
+  .legend__title .addr {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .legend__hint {
+    font-size: 0.85rem;
+    color: var(--ink-3);
+  }
+  .legend__toggle {
+    display: inline-flex;
+    margin-left: auto;
+    color: var(--ink-3);
+    transition: rotate 180ms var(--ease-out);
+  }
+  .legend[open] .legend__toggle {
+    rotate: 45deg;
+  }
+  .legend__list {
+    list-style: none;
+    margin: 0;
+    padding: 0 16px 14px;
+    display: grid;
+    gap: 9px;
+  }
+  .legend__list li {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+    align-items: start;
+  }
+  .legend__list strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .legend__list code {
+    font-size: 0.8rem;
+  }
+  .legend__sym {
+    width: 36px;
+    height: 12px;
+    margin-top: 0.35em;
+  }
+  .legend__cells {
+    display: flex;
+    gap: 3px;
+    height: auto;
+  }
+  .lc {
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid var(--green);
+    border-radius: 2px;
+  }
+  .lc--done {
+    background: var(--green);
+  }
+  .lc--opt {
+    border-style: dashed;
+    border-color: var(--blue);
+  }
+  .legend__here {
+    height: 14px;
+    border-radius: 3px;
+    background: var(--yellow);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--yellow) 60%, var(--ink));
+  }
+  .legend__word {
+    height: auto;
+    margin-top: 0.1em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .legend__status {
+    display: flex;
+    gap: 4px;
+    height: 14px;
+  }
+  .legend__ok,
+  .legend__pend {
+    flex: 1;
+    border-radius: 3px;
+    background: var(--surface);
+  }
+  .legend__ok {
+    border: 1.5px solid var(--green);
+  }
+  .legend__pend {
+    border: 1.5px dashed var(--ink-3);
+  }
+</style>

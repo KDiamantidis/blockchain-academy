@@ -1,0 +1,87 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_NAME, getPhases, href, stepsPayload } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Οδηγός βήμα βήμα από το μηδέν μέχρι το security των smart contracts, από την ομάδα Blockchain του Democritus Sec Team (ΔΠΘ).',
+} = Astro.props;
+
+const fullTitle = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME}: από το μηδέν στο smart contract security`;
+const phases = await getPhases();
+const phaseData = phases.map((p) => ({ order: p.data.order, steps: stepsPayload(p) }));
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#dce3ea" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#26292e" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="el_GR" />
+    <link rel="icon" href={href('favicon.svg')} type="image/svg+xml" />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('dst-theme');
+          if (t === 'light' || t === 'dark') {
+            document.documentElement.dataset.theme = t;
+            var c = t === 'dark' ? '#26292e' : '#dce3ea';
+            document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+              m.setAttribute('content', c);
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Μετάβαση στο περιεχόμενο</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script type="application/json" id="phase-data" set:html={JSON.stringify(phaseData)} />
+    <script>
+      import '../scripts/render';
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 12px;
+    top: -60px;
+    z-index: 100;
+    padding: 0.6em 1em;
+    background: var(--ink);
+    color: var(--surface);
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .skip:focus {
+    top: 12px;
+  }
+  main:focus {
+    outline: none;
+  }
+</style>

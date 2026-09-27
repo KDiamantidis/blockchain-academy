@@ -1,0 +1,187 @@
+---
+import Base from '../layouts/Base.astro';
+import Graph from '../components/Graph.astro';
+import Legend from '../components/Legend.astro';
+import Progress from '../components/Progress.astro';
+import Icon from '../components/Icon.astro';
+import { getPhases, href } from '../lib/site';
+
+const phases = await getPhases();
+const reqTotal = phases.reduce((n, p) => n + p.data.steps.filter((s) => s.required).length, 0);
+---
+
+<Base title="Roadmap" description="Όλες οι φάσεις του οδηγού, από την προετοιμασία μέχρι το hacking smart contracts, με την πρόοδό σου.">
+  <div class="wrap">
+    <header class="rm-head">
+      <div class="rm-intro">
+        <h1>Roadmap</h1>
+        <p class="rm-lead">
+          Επτά φάσεις, από το στήσιμο των εργαλείων μέχρι να σπάς smart contracts. Άνοιξε μια φάση, κάνε τα βήματα και τσέκαρέ τα.
+          Δεν ξέρεις πού να ξεκινήσεις; <a href={href('start/')}>Κάνε 4 γρήγορες ερωτήσεις</a>.
+        </p>
+      </div>
+      <div class="rm-progress">
+        <Progress label="Συνολική πρόοδος" reqTotal={reqTotal} />
+        <p class="rm-storage" data-storage-note hidden>
+          <Icon name="info" size={16} /> Ο browser σου δεν επιτρέπει αποθήκευση. Η πρόοδος θα χαθεί όταν κλείσεις τη σελίδα.
+        </p>
+      </div>
+    </header>
+
+    <div class="rm-layout">
+      <section class="rm-graph" aria-label="Οι φάσεις του οδηγού">
+        <Graph phases={phases} />
+      </section>
+      <div class="rm-side">
+        <Legend />
+        <div class="reset" data-reset>
+          <button class="btn btn--ghost reset__open" type="button" data-reset-open aria-controls="reset-confirm" aria-expanded="false">
+            <Icon name="reset" size={17} />
+            Μηδενισμός προόδου
+          </button>
+          <div class="reset__confirm" id="reset-confirm" hidden data-reset-panel>
+            <p id="reset-q"><strong>Σίγουρα;</strong> Θα σβηστούν όλα τα τσεκαρισμένα βήματα και το σημείο εκκίνησης από το quiz. Δεν γίνεται αναίρεση.</p>
+            <div class="reset__actions" role="group" aria-labelledby="reset-q">
+              <button class="btn btn--danger" type="button" data-reset-yes>Ναι, μηδένισε</button>
+              <button class="btn btn--ghost" type="button" data-reset-no>Άκυρο</button>
+            </div>
+          </div>
+          <p class="reset__done" role="status" data-reset-status></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { resetProgress } from '../scripts/progress';
+
+  const open = document.querySelector<HTMLButtonElement>('[data-reset-open]')!;
+  const panel = document.querySelector<HTMLElement>('[data-reset-panel]')!;
+  const yes = document.querySelector<HTMLButtonElement>('[data-reset-yes]')!;
+  const no = document.querySelector<HTMLButtonElement>('[data-reset-no]')!;
+  const status = document.querySelector<HTMLElement>('[data-reset-status]')!;
+
+  const setOpen = (value: boolean) => {
+    panel.hidden = !value;
+    open.hidden = value;
+    open.setAttribute('aria-expanded', String(value));
+  };
+
+  open.addEventListener('click', () => {
+    status.textContent = '';
+    setOpen(true);
+    no.focus();
+  });
+  no.addEventListener('click', () => {
+    setOpen(false);
+    open.focus();
+  });
+  yes.addEventListener('click', () => {
+    resetProgress();
+    setOpen(false);
+    open.focus();
+    status.textContent = 'Η πρόοδος μηδενίστηκε.';
+  });
+  panel.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') no.click();
+  });
+</script>
+
+<style>
+  .rm-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr);
+    gap: 24px 56px;
+    align-items: end;
+    padding-block: 48px 36px;
+  }
+  .rm-lead {
+    margin-top: 12px;
+    max-width: 58ch;
+    color: var(--ink-2);
+  }
+  .rm-progress {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+  }
+  .rm-storage {
+    display: flex;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--ink-2);
+  }
+  .rm-storage[hidden] {
+    display: none;
+  }
+  .rm-storage :global(svg) {
+    flex: none;
+    margin-top: 0.2em;
+  }
+  .rm-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 40px;
+    align-items: start;
+  }
+  .rm-side {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+    display: grid;
+    gap: 16px;
+  }
+  .reset__confirm {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    background: var(--red-soft);
+    font-size: 0.925rem;
+  }
+  .reset__confirm:not([hidden]) {
+    transition:
+      opacity 180ms var(--ease-out),
+      translate 180ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      translate: 0 -4px;
+    }
+  }
+  .reset__confirm[hidden] {
+    display: none;
+  }
+  .reset__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .reset__done {
+    font-size: 0.9rem;
+    color: var(--green-ink);
+  }
+  .reset__done:empty {
+    display: none;
+  }
+  @media (max-width: 1060px) {
+    .rm-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rm-side {
+      display: contents;
+    }
+    .rm-side :global(.legend) {
+      order: -1;
+    }
+  }
+  @media (max-width: 760px) {
+    .rm-head {
+      grid-template-columns: minmax(0, 1fr);
+      padding-block: 32px 24px;
+    }
+  }
+</style>

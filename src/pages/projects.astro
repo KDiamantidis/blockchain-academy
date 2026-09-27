@@ -1,0 +1,224 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { phaseHref } from '../lib/site';
+
+const projects = await getCollection('projects');
+const statusKey = {
+  Ιδέα: 'idea',
+  'Σε σχεδιασμό': 'design',
+  'Σε εξέλιξη': 'progress',
+  Ολοκληρώθηκε: 'done',
+} as const;
+---
+
+<Base title="Ομαδικά Projects" description="Τα projects που χτίζει η ομάδα Blockchain του Democritus Sec Team. Εκεί εφαρμόζεις ό,τι έμαθες στον οδηγό.">
+  <div class="wrap page">
+    <header class="pj-head">
+      <h1>Ομαδικά Projects</h1>
+      <p class="pj-lead">
+        Εδώ εφαρμόζεις ό,τι έμαθες στον οδηγό, μαζί με την ομάδα. Κάθε project είναι μια πραγματική ομαδική δουλειά για το portfolio
+        σου: git workflow, code reviews και μοίρασμα των tasks.
+      </p>
+      <ul class="pj-status" aria-label="Καταστάσεις project">
+        <li><span class="badge badge--idea">Ιδέα</span> το συζητάμε</li>
+        <li><span class="badge badge--design">Σε σχεδιασμό</span> γράφουμε τα specs</li>
+        <li><span class="badge badge--progress">Σε εξέλιξη</span> γράφουμε κώδικα</li>
+        <li><span class="badge badge--done"><Icon name="check" size={13} /> Ολοκληρώθηκε</span></li>
+      </ul>
+    </header>
+
+    <ul class="grid">
+      {
+        projects.map((p) => (
+          <li class="proj">
+            <div class="proj__head">
+              <span class="addr proj__id">{p.id}</span>
+              <span class:list={['badge', `badge--${statusKey[p.data.status]}`]}>
+                {p.data.status === 'Ολοκληρώθηκε' && <Icon name="check" size={13} />}
+                {p.data.status}
+              </span>
+            </div>
+            <div class="proj__body">
+              <h2 class="proj__name">{p.data.name}</h2>
+              <p class="proj__desc">{p.data.description}</p>
+              <div class="proj__needs">
+                <span class="addr">Χρειάζεται</span>
+                <ul>
+                  {p.data.phases.map((n) => (
+                    <li>
+                      <a href={phaseHref(n)}>Φάση {n}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {p.data.link ? (
+                <a class="proj__link" href={p.data.link} rel="noopener">
+                  {p.data.linkLabel ?? 'Repo / συζήτηση'} <Icon name="external" size={15} />
+                </a>
+              ) : (
+                <p class="proj__nolink addr">Δεν υπάρχει ακόμα repo</p>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="pj-propose">
+      <Icon name="chat" size={18} />
+      <span>Θες να προτείνεις project; Γράψε στο <strong class="mono">#block-chain</strong>.</span>
+    </p>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 48px;
+  }
+  .pj-lead {
+    margin-top: 12px;
+    max-width: 62ch;
+    color: var(--ink-2);
+  }
+  .pj-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9rem;
+    color: var(--ink-3);
+  }
+  .pj-status li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge--idea {
+    border: 1px dashed var(--ink-3);
+    color: var(--ink-2);
+  }
+  .badge--design {
+    border: 1px solid var(--blue);
+    color: var(--blue-ink);
+    background: var(--blue-soft);
+  }
+  .badge--progress {
+    border: 1px solid color-mix(in srgb, var(--yellow) 55%, var(--ink));
+    background: var(--yellow);
+    color: var(--on-yellow);
+  }
+  .badge--done {
+    border: 1px solid var(--green-ink);
+    background: var(--green-ink);
+    color: var(--on-green);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 20px;
+    margin: 36px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .proj {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .proj__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .proj__id {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .proj__body {
+    display: grid;
+    gap: 12px;
+    padding: 16px 16px 18px;
+    flex: 1;
+    align-content: start;
+  }
+  .proj__name {
+    font-size: 1.3rem;
+  }
+  .proj__desc {
+    color: var(--ink-2);
+  }
+  .proj__needs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .proj__needs ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .proj__needs a {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--green);
+    border-radius: 3px;
+    background: var(--green-soft);
+    color: var(--green-ink);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .proj__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+  .proj__nolink {
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-soft);
+  }
+  .pj-propose {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-top: 40px;
+    padding: 14px 16px;
+    max-width: 62ch;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+  .pj-propose :global(svg) {
+    flex: none;
+    margin-top: 0.2em;
+    color: var(--blue-ink);
+  }
+</style>

@@ -1,0 +1,804 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Progress from '../../components/Progress.astro';
+import { REPO_URL, blockHash, blockLabel, getPhases, href, phaseHref, shortHash, type Phase } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const phases = await getPhases();
+  return phases.map((phase, i) => ({
+    params: { order: String(phase.data.order) },
+    props: { phase, prev: phases[i - 1], next: phases[i + 1] },
+  }));
+}
+
+interface Props {
+  phase: Phase;
+  prev?: Phase;
+  next?: Phase;
+}
+
+const { phase, prev, next } = Astro.props;
+const { data } = phase;
+const { Content } = await render(phase);
+const hasBody = Boolean(phase.body?.trim());
+const glossary = await getCollection('glossary');
+const terms = data.terms
+  .map((id) => glossary.find((g) => g.id === id))
+  .filter((g): g is NonNullable<typeof g> => Boolean(g));
+const reqTotal = data.steps.filter((s) => s.required).length;
+const editUrl = `${REPO_URL}/edit/main/src/content/phases/${phase.id}.md`;
+
+type Indexed = { step: (typeof data.steps)[number]; n: number };
+const segments: { group?: string; items: Indexed[] }[] = [];
+data.steps.forEach((step, i) => {
+  const last = segments.at(-1);
+  if (last && last.group === step.group) last.items.push({ step, n: i + 1 });
+  else segments.push({ group: step.group, items: [{ step, n: i + 1 }] });
+});
+const grouped = segments.some((seg) => seg.group);
+const StepHeading = grouped ? 'h4' : 'h3';
+
+const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.data.order}: ${p.data.title}`;
+---
+
+<Base title={`Φάση ${data.order}: ${data.title}`} description={data.goal}>
+  <div class="wrap page">
+    <nav class="crumbs addr" aria-label="Διαδρομή">
+      <a href={href('roadmap/')}>roadmap</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">Φάση {data.order}</span>
+    </nav>
+
+    <header class="ph-head" data-phase={data.order}>
+      <div class="ph-head__strip">
+        <span class="ph-head__phase">Φάση {data.order}</span>
+        <span class="addr">{blockLabel(data.order)}</span>
+        <span class="addr ph-head__hash" title={blockHash(data.order)} aria-hidden="true">hash {shortHash(blockHash(data.order))}</span>
+        <span class="addr ph-head__count">{data.steps.length} βήματα · {reqTotal} υποχρεωτικά</span>
+        <span class="tag tag--here ph-head__here">εδώ είσαι</span>
+      </div>
+      <div class="ph-head__body">
+        <h1>{data.title}</h1>
+        <p class="ph-head__goal"><span class="ph-head__k">Στόχος</span>{data.goal}</p>
+        <dl class="ph-head__meta">
+          <div>
+            <dt>Προαπαιτούμενα</dt>
+            <dd>{data.prerequisites}</dd>
+          </div>
+          {
+            data.parallel && (
+              <div class="ph-head__par">
+                <dt>Παράλληλα</dt>
+                <dd>{data.parallel.note}</dd>
+              </div>
+            )
+          }
+        </dl>
+        <Progress label="Πρόοδος φάσης" phase={data.order} reqTotal={reqTotal} />
+        <p class="storage-note" data-storage-note hidden>
+          <Icon name="info" size={16} /> Ο browser σου δεν επιτρέπει αποθήκευση. Τα τσεκ θα χαθούν όταν κλείσεις τη σελίδα.
+        </p>
+      </div>
+    </header>
+
+    {
+      hasBody && (
+        <section class="ph-notes prose" aria-label="Σημειώσεις">
+          <Content />
+        </section>
+      )
+    }
+
+    <section class="ph-section" aria-labelledby="steps-title">
+      <h2 id="steps-title">Βήματα</h2>
+      <p class="resume" data-next-step hidden>
+        <a href="#" data-next-step-link>
+          <Icon name="arrow-right" size={16} />
+          <span data-next-step-label>Συνέχισε από το επόμενο βήμα</span>
+        </a>
+      </p>
+      {
+        segments.map((seg) => (
+          <div class="step-group">
+            {seg.group && (
+              <h3 class="step-group__title">
+                {seg.group}
+                <span class="addr step-group__count">{seg.items.length} βήματα</span>
+              </h3>
+            )}
+            <ol class="steps">
+              {seg.items.map(({ step: s, n }) => (
+                <li
+                  class:list={['step', s.required ? 'step--req' : 'step--opt']}
+                  id={`step-${s.id}`}
+                  data-step-row
+                  data-step-num={`${data.order}.${n}`}
+                  data-required={s.required ? '1' : undefined}
+                >
+                  <div class="step__gutter">
+                    <span class="addr step__idx">
+                      {data.order}.{n}
+                    </span>
+                    <label class="check">
+                      <input type="checkbox" data-step={s.id} />
+                      <span class="check__box" aria-hidden="true">
+                        <Icon name="check" size={16} />
+                      </span>
+                      <span class="visually-hidden">Ολοκληρώθηκε: {s.title}</span>
+                    </label>
+                  </div>
+                  <div class="step__body">
+                    <div class="step__meta">
+                      {s.required ? <span class="tag tag--req">Υποχρεωτικό</span> : <span class="tag tag--opt">Προαιρετικό</span>}
+                      {s.provider && <span class="addr">{s.provider}</span>}
+                      {s.duration && <span class="addr step__dur">{s.duration}</span>}
+                    </div>
+                    <StepHeading class="step__title">
+                      {s.url ? (
+                        <a href={s.url} target="_blank" rel="noopener noreferrer">
+                          {s.title}
+                          <Icon name="external" size={15} class="step__ext" />
+                          <span class="visually-hidden">(ανοίγει σε νέα καρτέλα)</span>
+                        </a>
+                      ) : (
+                        s.title
+                      )}
+                    </StepHeading>
+                    {s.note && <p class="step__note">{s.note}</p>}
+                    {s.sections && (
+                      <div class="step__sections">
+                        <span class="addr">{s.sectionsLabel}</span>
+                        <ul>
+                          {s.sections.map((sec) => (
+                            <li>{sec}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {s.hint && (
+                      <details class="step__hint">
+                        <summary>Τι μαθαίνεις (spoiler)</summary>
+                        <p>{s.hint}</p>
+                      </details>
+                    )}
+                    {s.highlight && (
+                      <p class="step__highlight">
+                        <Icon name="info" size={17} />
+                        <span>
+                          {s.highlight} <a href={href('projects/')}>Ομαδικά Projects</a>
+                        </span>
+                      </p>
+                    )}
+                    {s.warning && (
+                      <p class="step__warning">
+                        <Icon name="warning" size={17} />
+                        <span>{s.warning}</span>
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))
+      }
+    </section>
+
+    <section class="ph-section" aria-labelledby="checks-title">
+      <h2 id="checks-title">Πριν προχωρήσεις</h2>
+      <p class="ph-section__lead">Αν μπορείς να απαντήσεις σε αυτές τις ερωτήσεις με δικά σου λόγια, μπορείς να προχωρήσεις στην επόμενη φάση. Αν όχι, γύρνα πίσω στο υλικό ή ρώτα στο <strong class="mono">#block-chain</strong>.</p>
+      <ol class="checks">
+        {data.checks.map((q) => <li>{q}</li>)}
+      </ol>
+    </section>
+
+    {
+      data.pitfalls.length > 0 && (
+        <section class="ph-section" aria-labelledby="pitfalls-title">
+          <h2 id="pitfalls-title">Συνηθισμένα λάθη</h2>
+          <ul class="pitfalls">
+            {data.pitfalls.map((p) => (
+              <li>
+                <Icon name="warning" size={18} />
+                <span>{p}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      terms.length > 0 && (
+        <section class="ph-section" aria-labelledby="terms-title">
+          <h2 id="terms-title">Όροι της φάσης</h2>
+          <ul class="terms">
+            {terms.map((t) => (
+              <li>
+                <a href={href(`glossary/#${t.id}`)}>{t.data.term}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <nav class="ph-nav" aria-label="Φάσεις">
+      {
+        prev ? (
+          <a class="ph-nav__link ph-nav__link--prev" href={phaseHref(prev.data.order)}>
+            <span class="addr">
+              <Icon name="arrow-left" size={15} /> {blockLabel(prev.data.order)}
+            </span>
+            <span class="ph-nav__title">{navLabel(prev)}</span>
+          </a>
+        ) : (
+          <a class="ph-nav__link ph-nav__link--prev" href={href('roadmap/')}>
+            <span class="addr">
+              <Icon name="arrow-left" size={15} /> roadmap
+            </span>
+            <span class="ph-nav__title">Όλες οι φάσεις</span>
+          </a>
+        )
+      }
+      {
+        next ? (
+          <a class="ph-nav__link ph-nav__link--next" href={phaseHref(next.data.order)}>
+            <span class="addr">
+              {blockLabel(next.data.order)} <Icon name="arrow-right" size={15} />
+            </span>
+            <span class="ph-nav__title">{navLabel(next)}</span>
+          </a>
+        ) : (
+          <a class="ph-nav__link ph-nav__link--next ph-nav__link--exit" href={href('projects/')}>
+            <span class="addr">
+              head <Icon name="arrow-right" size={15} />
+            </span>
+            <span class="ph-nav__title">Τελείωσες τον οδηγό; Δες τα ομαδικά projects</span>
+          </a>
+        )
+      }
+    </nav>
+
+    <p class="ph-edit">
+      Βρήκες λάθος ή έχεις καλύτερο resource; <a href={editUrl} rel="noopener">Πρότεινε αλλαγή με pull request</a>.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .page {
+    max-width: 880px;
+  }
+  .crumbs {
+    display: flex;
+    gap: 8px;
+    padding-top: 28px;
+  }
+  .crumbs a {
+    color: var(--ink-2);
+  }
+
+  .ph-head {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .ph-head__strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    padding: 6px 20px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .ph-head__phase {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .ph-head__here {
+    display: none;
+    margin-left: auto;
+  }
+  .ph-head[data-current] .ph-head__strip {
+    background: var(--yellow);
+  }
+  .ph-head[data-current] .ph-head__strip .addr,
+  .ph-head[data-current] .ph-head__phase {
+    color: var(--on-yellow);
+  }
+  .ph-head[data-current] .ph-head__here {
+    display: inline-flex;
+    background: var(--on-yellow);
+    color: var(--yellow);
+    border-color: var(--on-yellow);
+  }
+  .ph-head__body {
+    display: grid;
+    gap: 16px;
+    padding: 24px 20px 22px;
+  }
+  .ph-head__goal {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    max-width: 60ch;
+  }
+  .ph-head__k {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
+    margin-bottom: 2px;
+  }
+  .ph-head__meta {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+  }
+  .ph-head__meta dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
+  }
+  .ph-head__meta dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .ph-head__par dt,
+  .ph-head__par dd {
+    color: var(--blue-ink);
+  }
+  .storage-note {
+    display: flex;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--ink-2);
+  }
+  .storage-note[hidden] {
+    display: none;
+  }
+
+  .ph-notes {
+    margin-top: 32px;
+    padding: 4px 0 4px 20px;
+    border-left: 1px solid var(--border);
+  }
+  .ph-notes :global(h2) {
+    margin-top: 0;
+    font-size: 1.25rem;
+  }
+
+  .ph-section {
+    margin-top: 56px;
+  }
+  .ph-section > h2 {
+    margin-bottom: 16px;
+  }
+  .ph-section__lead {
+    max-width: var(--measure);
+    color: var(--ink-2);
+    margin-bottom: 16px;
+  }
+
+  .step-group + .step-group {
+    margin-top: 28px;
+  }
+  .step-group__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+  }
+  .step-group__count {
+    font-weight: 500;
+  }
+  .resume {
+    margin: -4px 0 16px;
+  }
+  .resume[hidden] {
+    display: none;
+  }
+  .resume a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--yellow);
+    color: var(--on-yellow);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .resume a:active {
+    transform: scale(0.98);
+  }
+  .step {
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    border-top: 1px solid var(--border-soft);
+    transition: background-color 180ms ease;
+  }
+  .step:first-child {
+    border-top: 0;
+  }
+  .step__gutter {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 8px;
+    padding: 18px 0;
+    background: var(--surface-2);
+    border-right: 1px solid var(--border-soft);
+  }
+  .step:first-child .step__gutter {
+    border-top-left-radius: var(--radius);
+  }
+  .step:last-child .step__gutter {
+    border-bottom-left-radius: var(--radius);
+  }
+  .step__idx {
+    font-size: 0.75rem;
+  }
+  .step__body {
+    display: grid;
+    gap: 8px;
+    padding: 16px 20px 18px;
+    min-width: 0;
+  }
+  .step__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+  }
+  .step__dur::before {
+    content: '· ';
+  }
+  .step__title {
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+  .step__title a {
+    color: var(--ink);
+    text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .step__title a:hover {
+      color: var(--blue-ink);
+      text-decoration-color: currentColor;
+    }
+  }
+  .step__title :global(.step__ext) {
+    display: inline;
+    vertical-align: -0.1em;
+    margin-left: 0.3em;
+    color: var(--ink-3);
+  }
+  .step__note {
+    color: var(--ink-2);
+    max-width: var(--measure);
+  }
+  .step__sections {
+    display: grid;
+    gap: 6px;
+    font-size: 0.925rem;
+  }
+  .step__sections ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .step__sections li {
+    padding: 2px 8px;
+    border: 1px solid var(--border-soft);
+    border-radius: 3px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+  .step__hint {
+    font-size: 0.95rem;
+  }
+  .step__hint summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    cursor: pointer;
+    color: var(--blue-ink);
+    font-weight: 600;
+  }
+  .step__hint p {
+    padding: 8px 12px;
+    background: var(--yellow-soft);
+    border-radius: 3px;
+    color: var(--ink);
+  }
+  .step__highlight,
+  .step__warning {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 3px;
+    font-size: 0.95rem;
+  }
+  .step__highlight {
+    background: var(--blue-soft);
+    color: var(--ink);
+  }
+  .step__highlight :global(svg) {
+    color: var(--blue-ink);
+  }
+  .step__warning {
+    background: var(--red-soft);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--red);
+  }
+  .step__warning :global(svg) {
+    color: var(--red-ink);
+  }
+  .step__highlight :global(svg),
+  .step__warning :global(svg) {
+    flex: none;
+    margin-top: 0.15em;
+  }
+
+  .check {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+  }
+  .check input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .check__box {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 2px solid var(--green);
+    border-radius: 4px;
+    background: var(--surface);
+    color: transparent;
+    transition:
+      background-color 140ms ease,
+      transform 140ms var(--ease-out);
+  }
+  .step--opt .check__box {
+    border-style: dashed;
+    border-color: var(--blue);
+  }
+  .check input:checked + .check__box {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--on-green);
+  }
+  .step--opt .check input:checked + .check__box {
+    background: var(--blue);
+    border-color: var(--blue);
+    border-style: solid;
+    color: var(--surface);
+  }
+  .check input:active + .check__box {
+    transform: scale(0.92);
+  }
+  .check input:focus-visible + .check__box {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+  }
+  .check__box :global(svg) {
+    stroke-width: 2.6;
+  }
+  :global(.is-hydrated) .check__box :global(svg) {
+    transition:
+      opacity 160ms ease,
+      transform 200ms var(--ease-out);
+  }
+  .check input:not(:checked) + .check__box :global(svg) {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  .step[data-done] .step__title a,
+  .step[data-done] .step__title {
+    text-decoration-line: none;
+  }
+  .step[data-done] .step__gutter {
+    background: var(--green-soft);
+  }
+  .step--opt[data-done] .step__gutter {
+    background: var(--blue-soft);
+  }
+
+  .checks {
+    counter-reset: q;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    max-width: var(--measure);
+  }
+  .checks li {
+    counter-increment: q;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 8px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-soft);
+  }
+  .checks li:first-child {
+    border-top: 0;
+  }
+  .checks li::before {
+    content: 'Q' counter(q);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-3);
+    padding-top: 0.25em;
+  }
+
+  .pitfalls {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    max-width: var(--measure);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    background: var(--red-soft);
+  }
+  .pitfalls li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .pitfalls li + li {
+    border-top: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
+  }
+  .pitfalls :global(svg) {
+    color: var(--red-ink);
+    margin-top: 0.2em;
+  }
+
+  .terms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .terms a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .terms a:hover {
+      border-color: var(--blue);
+      color: var(--blue-ink);
+    }
+  }
+
+  .ph-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 64px;
+  }
+  .ph-nav__link {
+    display: grid;
+    gap: 4px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 140ms var(--ease-out);
+  }
+  .ph-nav__link:active {
+    transform: scale(0.98);
+  }
+  .ph-nav__link .addr {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ph-nav__link--next {
+    text-align: right;
+    justify-items: end;
+  }
+  .ph-nav__link--exit {
+    border-style: dashed;
+    border-color: var(--green);
+  }
+  .ph-nav__title {
+    font-weight: 600;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .ph-nav__link:hover {
+      border-color: var(--ink-2);
+    }
+    .ph-nav__link:hover .ph-nav__title {
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+  }
+  .ph-edit {
+    margin-top: 32px;
+    font-size: 0.9rem;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 640px) {
+    .step {
+      grid-template-columns: 56px minmax(0, 1fr);
+    }
+    .step__body {
+      padding: 14px 14px 16px;
+    }
+    .ph-head__body {
+      padding: 20px 16px;
+    }
+    .ph-head__strip {
+      padding-inline: 16px;
+    }
+    .ph-nav {
+      grid-template-columns: 1fr;
+    }
+    .ph-notes {
+      padding-left: 14px;
+    }
+  }
+</style>

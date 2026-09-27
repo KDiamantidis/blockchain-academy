@@ -1,0 +1,160 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { phaseHref } from '../lib/site';
+
+const entries = (await getCollection('glossary')).sort((a, b) =>
+  a.data.term.localeCompare(b.data.term, 'en', { sensitivity: 'base' }),
+);
+---
+
+<Base title="Γλωσσάρι" description="Οι βασικοί όροι του blockchain και του smart contract security, εξηγημένοι στα ελληνικά.">
+  <div class="wrap wrap--narrow page">
+    <header>
+      <h1>Γλωσσάρι</h1>
+      <p class="gl-lead">
+        Οι όροι που θα συναντήσεις στα courses, εξηγημένοι απλά. Τους κρατάμε στα αγγλικά, γιατί έτσι θα τους βρεις παντού.
+      </p>
+    </header>
+
+    <div class="gl-search">
+      <label for="gl-filter" class="addr">Αναζήτηση όρου</label>
+      <input id="gl-filter" type="search" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" placeholder="π.χ. gas, reentrancy" data-filter />
+      <p class="gl-empty" data-empty hidden>Δεν βρέθηκε όρος. Ρώτα στο <strong class="mono">#block-chain</strong>.</p>
+    </div>
+
+    <dl class="gl">
+      {
+        entries.map((e) => (
+          <div class="gl__item" id={e.id} data-term={`${e.data.term} ${e.id}`.toLowerCase()}>
+            <dt>
+              <a class="gl__anchor" href={`#${e.id}`}>
+                {e.data.term}
+              </a>
+            </dt>
+            <dd>
+              <p>{e.data.definition}</p>
+              {e.data.phase !== undefined && (
+                <a class="gl__phase addr" href={phaseHref(e.data.phase)}>
+                  Φάση {e.data.phase}
+                </a>
+              )}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</Base>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('[data-filter]')!;
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-term]'));
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    let shown = 0;
+    for (const item of items) {
+      const match = !q || item.dataset.term!.includes(q) || item.textContent!.toLowerCase().includes(q);
+      item.hidden = !match;
+      if (match) shown++;
+    }
+    empty.hidden = shown > 0;
+  });
+</script>
+
+<style>
+  .page {
+    padding-top: 48px;
+  }
+  .gl-lead {
+    margin-top: 12px;
+    color: var(--ink-2);
+  }
+  .gl-search {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    display: grid;
+    gap: 6px;
+    margin-top: 28px;
+    padding: 12px 0;
+    background: var(--canvas);
+  }
+  .gl-search input {
+    width: 100%;
+    min-height: 46px;
+    padding: 8px 14px;
+    border: 1px solid var(--ink-3);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .gl-search input::placeholder {
+    color: var(--ink-3);
+  }
+  .gl-empty {
+    color: var(--ink-2);
+  }
+  .gl-empty[hidden] {
+    display: none;
+  }
+  .gl {
+    margin: 12px 0 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .gl__item {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 8px 24px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-soft);
+    scroll-margin-top: calc(var(--header-h) + 90px);
+  }
+  .gl__item:first-child {
+    border-top: 0;
+  }
+  .gl__item[hidden] {
+    display: none;
+  }
+  .gl__item:target {
+    background: var(--yellow-soft);
+  }
+  .gl dt {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding-top: 0.15em;
+  }
+  .gl__anchor {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .gl__anchor:hover {
+      text-decoration: underline;
+    }
+  }
+  .gl dd {
+    margin: 0;
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+  }
+  .gl dd p {
+    color: var(--ink-2);
+  }
+  .gl__phase {
+    font-size: 0.75rem;
+    color: var(--blue-ink);
+  }
+  @media (max-width: 640px) {
+    .gl__item {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 14px 16px;
+    }
+  }
+</style>

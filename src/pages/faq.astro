@@ -1,0 +1,308 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { href } from '../lib/site';
+
+const rules = [
+  {
+    title: 'Ό,τι φτιάχνεις, στο GitHub σου.',
+    text: 'Ασκήσεις από τα courses, Speedrun projects, write-ups από το Ethernaut. Αυτό γίνεται το portfolio σου.',
+  },
+  {
+    title: 'Ρώτα στο #block-chain.',
+    text: 'Δεν υπάρχουν χαζές ερωτήσεις. Αν κόλλησες μισή ώρα, κάποιος άλλος θα κολλήσει στο ίδιο σημείο.',
+  },
+  {
+    title: 'Το AI είναι δάσκαλος, όχι λύτης.',
+    text: 'Ζήτα του να σου εξηγήσει, όχι να σου δώσει την απάντηση.',
+  },
+  {
+    title: 'Η σταθερότητα κερδίζει την ταχύτητα.',
+    text: 'Λίγο κάθε εβδομάδα είναι καλύτερο από έναν μαραθώνιο και μετά τίποτα.',
+  },
+  {
+    title: 'Όχι πραγματικά χρήματα. Μόνο testnets.',
+    text: 'Ποτέ μη δώσεις και μην επικολλήσεις private key ή seed phrase, πουθενά.',
+    warn: true,
+  },
+];
+---
+
+<Base title="Πώς δουλεύουμε" description="Οι κανόνες της ομάδας Blockchain: βοήθεια, AI, GitHub και ασφάλεια.">
+  <div class="wrap wrap--narrow page">
+    <header>
+      <h1>Πώς δουλεύουμε</h1>
+      <p class="fq-lead">Πέντε κανόνες. Είναι λίγοι γιατί τους εννοούμε.</p>
+    </header>
+
+    <ol class="rules">
+      {
+        rules.map((r) => (
+          <li class:list={['rule', { 'rule--warn': r.warn }]}>
+            <span class="rule__icon">
+              <Icon name={r.warn ? 'warning' : 'check'} size={18} />
+            </span>
+            <div>
+              <p class="rule__title">{r.title}</p>
+              <p class="rule__text">{r.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <section class="ai" aria-labelledby="ai-title">
+      <h2 id="ai-title">Ο κανόνας για το AI, με παραδείγματα</h2>
+      <div class="ai__grid">
+        <div class="ai__col ai__col--ok">
+          <p class="addr ai__k">
+            <Icon name="check" size={15} /> Ναι
+          </p>
+          <ul>
+            <li>«Εξήγησέ μου το delegatecall με ένα απλό παράδειγμα.»</li>
+            <li>«Τι σημαίνει αυτό το error του Foundry;»</li>
+            <li>«Γιατί το checks-effects-interactions σταματά το reentrancy;»</li>
+            <li>«Διάβασε το write-up μου. Εξηγώ σωστά γιατί ήταν ευάλωτο;»</li>
+          </ul>
+        </div>
+        <div class="ai__col ai__col--no">
+          <p class="addr ai__k">
+            <Icon name="close" size={15} /> Όχι
+          </p>
+          <ul>
+            <li>«Λύσε μου το level 6 του Ethernaut.»</li>
+            <li>«Γράψε μου το contract για το challenge.»</li>
+            <li>«Δώσε μου το exploit.»</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">Συχνές ερωτήσεις</h2>
+
+      <details>
+        <summary>Κόλλησα. Τι κάνω;<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
+        <div class="faq__a">
+          <p>
+            Πρώτα προσπάθησε με το υλικό του course και με AI σαν δάσκαλο. Αν μετά από λίγη ώρα δεν προχωράς, γράψε στο{" "}
+            <strong class="mono">#block-chain</strong> στο Discord. Πες τι προσπαθείς να κάνεις, τι δοκίμασες και τι error παίρνεις.
+            Έτσι σε βοηθάμε πιο γρήγορα.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Πρέπει να κάνω όλες τις φάσεις με τη σειρά;<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
+        <div class="faq__a">
+          <p>
+            Όχι απαραίτητα. Αν ξέρεις ήδη κάποια πράγματα, κάνε το <a href={href('start/')}>quiz</a> και ξεκίνα πιο μπροστά. Οι
+            Φάσεις 3 και 6 γίνονται παράλληλα με άλλες. Τα υποχρεωτικά βήματα όμως υπάρχουν για λόγο: μην τα προσπερνάς.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Πόσο χρόνο θέλει όλο αυτό;<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
+        <div class="faq__a">
+          <p>
+            Εξαρτάται από το πόσο ξέρεις ήδη και πόσο χρόνο έχεις κάθε εβδομάδα. Όπου το course δίνει διάρκεια, τη γράφουμε δίπλα στο
+            βήμα. Μην το κάνεις αγώνα: λίγο κάθε εβδομάδα.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Πώς να κρατάω το GitHub μου;<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
+        <div class="faq__a">
+          <ul>
+            <li>Ένα repo για κάθε course ή μεγάλο project, με καθαρό README.</li>
+            <li>Μικρά commits με μηνύματα που λένε τι άλλαξε.</li>
+            <li>Ένα repo για τα write-ups σου (Ethernaut και CTFs).</li>
+            <li>Ποτέ private key ή αρχείο <code>.env</code> στο repo. Βάλ’ το στο <code>.gitignore</code>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>Γιατί μόνο testnets;<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
+        <div class="faq__a">
+          <p>
+            Γιατί εδώ μαθαίνουμε και κάνουμε λάθη. Στο testnet ένα λάθος δεν κοστίζει τίποτα. Κράτα ένα ξεχωριστό wallet μόνο για
+            δοκιμές και μην βάλεις ποτέ εκεί πραγματικά χρήματα.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Πού αποθηκεύεται η πρόοδός μου;<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
+        <div class="faq__a">
+          <p>
+            Μόνο στον browser σου (localStorage). Δεν έχουμε server, λογαριασμούς ή analytics. Αν αλλάξεις συσκευή ή καθαρίσεις τα
+            δεδομένα του browser, η πρόοδος δεν σε ακολουθεί. Τη μηδενίζεις από το <a href={href('roadmap/')}>roadmap</a>.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Βρήκα λάθος ή έχω καλύτερο resource.<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
+        <div class="faq__a">
+          <p>
+            Τέλεια. Κάθε σελίδα φάσης έχει στο τέλος link για να προτείνεις αλλαγή με pull request. Ή γράψε το στο{" "}
+            <strong class="mono">#block-chain</strong>.
+          </p>
+        </div>
+      </details>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 48px;
+  }
+  .fq-lead {
+    margin-top: 12px;
+    color: var(--ink-2);
+  }
+  .rules {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .rule {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 14px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .rule:first-child {
+    border-top: 0;
+  }
+  .rule__icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green-ink);
+  }
+  .rule--warn {
+    background: var(--red-soft);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .rule--warn .rule__icon {
+    background: transparent;
+    color: var(--red-ink);
+    box-shadow: inset 0 0 0 1.5px var(--red);
+  }
+  .rule__title {
+    font-weight: 700;
+  }
+  .rule__text {
+    color: var(--ink-2);
+  }
+
+  .ai,
+  .faq {
+    margin-top: 56px;
+  }
+  .ai h2,
+  .faq h2 {
+    margin-bottom: 16px;
+  }
+  .ai__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .ai__col {
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+  }
+  .ai__col--ok {
+    border-color: var(--green);
+  }
+  .ai__col--no {
+    border-color: var(--red);
+    border-style: dashed;
+  }
+  .ai__k {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .ai__col--ok .ai__k {
+    color: var(--green-ink);
+  }
+  .ai__col--no .ai__k {
+    color: var(--red-ink);
+  }
+  .ai__col ul {
+    margin: 0;
+    padding-left: 1.1em;
+    display: grid;
+    gap: 6px;
+    color: var(--ink-2);
+  }
+
+  .faq details {
+    border-top: 1px solid var(--border);
+  }
+  .faq details:last-of-type {
+    border-bottom: 1px solid var(--border);
+  }
+  .faq summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-height: 56px;
+    padding: 10px 2px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq__icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--ink-3);
+    transition: rotate 180ms var(--ease-out);
+  }
+  .faq details[open] .faq__icon {
+    rotate: 45deg;
+  }
+  .faq__a {
+    padding: 0 2px 18px;
+    color: var(--ink-2);
+    max-width: var(--measure);
+  }
+  .faq__a ul {
+    margin: 0;
+    padding-left: 1.2em;
+    display: grid;
+    gap: 6px;
+  }
+  @media (max-width: 640px) {
+    .ai__grid {
+      grid-template-columns: 1fr;
+    }
+    .rule {
+      padding: 14px 16px;
+    }
+  }
+</style>

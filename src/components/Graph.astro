@@ -1,0 +1,607 @@
+---
+import Icon from './Icon.astro';
+import { GENESIS_HASH, blockHash, blockLabel, href, parentOf, phaseHref, shortHash, type Phase } from '../lib/site';
+
+interface Props {
+  phases: Phase[];
+  variant?: 'full' | 'mini';
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { phases, variant = 'full', headingLevel = 'h2' } = Astro.props;
+const H = headingLevel;
+const full = variant === 'full';
+
+// A link turns solid once the block it leaves from is confirmed.
+const links: { area: string; from: number; kind: 'main' | 'side'; label?: string }[] = [
+  { area: 'e01', from: 0, kind: 'main' },
+  { area: 'e12', from: 1, kind: 'main' },
+  { area: 'e23', from: 2, kind: 'side', label: 'παράλληλα' },
+  { area: 'e24', from: 2, kind: 'main' },
+  { area: 'e36', from: 3, kind: 'side', label: 'παράλληλα' },
+  { area: 'e45', from: 4, kind: 'main' },
+  { area: 'e5x', from: 5, kind: 'main' },
+];
+---
+
+<div class:list={['graph', `graph--${variant}`]}>
+  {
+    phases.map((p) => {
+      const parent = parentOf(p, phases);
+      const hash = blockHash(p.data.order);
+      const prevHash = parent ? blockHash(parent.data.order) : GENESIS_HASH;
+      const reqCount = p.data.steps.filter((s) => s.required).length;
+      const cells = full ? p.data.steps : p.data.steps.filter((s) => s.required);
+      return (
+        <article
+          class:list={['blk', { 'blk--par': Boolean(p.data.parallel) }]}
+          style={`grid-area: b${p.data.order}`}
+          data-phase={p.data.order}
+          data-state="todo"
+        >
+          <div class="blk__head">
+            <div class="blk__row">
+              <span class="blk__phase">Φάση {p.data.order}</span>
+              <span class="addr blk__num">{blockLabel(p.data.order)}</span>
+              <span class="blk__status">
+                <span class="tag tag--here blk__here">εδώ είσαι</span>
+                <span class="blk__confirmed">
+                  <Icon name="check" size={13} /> confirmed
+                </span>
+                <span class="blk__pending">pending</span>
+              </span>
+            </div>
+            <div class="blk__hashes addr" aria-hidden="true">
+              <span title={hash}>
+                <span class="blk__k">hash</span> {shortHash(hash)}
+              </span>
+              {full && (
+                <span title={prevHash} class:list={{ 'blk__prev--par': Boolean(p.data.parallel) }}>
+                  <span class="blk__k">prevHash</span> {shortHash(prevHash)}
+                </span>
+              )}
+            </div>
+          </div>
+          <div class="blk__body">
+            <H class="blk__title">
+              <a href={phaseHref(p.data.order)} class="blk__link">
+                <span class="visually-hidden">Φάση {p.data.order}: </span>
+                <span class="blk__name">{p.data.title}</span>
+                {!full && (
+                  <span class="visually-hidden">
+                    , <span data-count-req>0/{reqCount}</span> υποχρεωτικά βήματα
+                  </span>
+                )}
+              </a>
+            </H>
+            {full && <p class="blk__goal">{p.data.goal}</p>}
+            {full && p.data.parallel && <p class="blk__par">{p.data.parallel.note}</p>}
+            <div class="blk__foot">
+              <div class="blk__cells" aria-hidden="true">
+                {cells.map((s) => (
+                  <span class:list={['cell', s.required ? 'cell--req' : 'cell--opt']} data-cell={s.id} />
+                ))}
+              </div>
+              {full && (
+                <p class="blk__meta addr">
+                  <span data-count-req>0/{reqCount}</span> υποχρεωτικά
+                  <span class="blk__dot">·</span>
+                  <span data-count-all>0/{p.data.steps.length}</span> βήματα
+                </p>
+              )}
+            </div>
+          </div>
+        </article>
+      );
+    })
+  }
+
+  {
+    links.map((l) => (
+      <div
+        class:list={['link', `link--${l.kind}`, `link--${l.area}`]}
+        style={`grid-area: ${l.area}`}
+        data-edge-from={l.from}
+        aria-hidden="true"
+      >
+        <span class="link__chain" />
+        <span class="link__fill" />
+        {l.label && full && <span class="link__label addr">{l.label}</span>}
+      </div>
+    ))
+  }
+  <div class="link-gap" aria-hidden="true"></div>
+
+  <a class="blk blk--exit" style="grid-area: x" href={href('projects/')}>
+    <div class="blk__head">
+      <div class="blk__row">
+        <span class="blk__phase">Τέλος</span>
+        <span class="addr blk__num">head</span>
+      </div>
+    </div>
+    <div class="blk__body blk__body--exit">
+      <span class="blk__exit-text">
+        {full ? 'Τελείωσες τον οδηγό; Δες τα ομαδικά projects' : 'Ομαδικά projects'}
+      </span>
+      <Icon name="arrow-right" size={18} />
+    </div>
+  </a>
+</div>
+
+<style>
+  .graph {
+    --link-h: 52px;
+    --col-gap: 88px;
+    --link-x: 50%;
+    --chain-v: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='22'%3E%3Crect x='1.4' y='1.4' width='9.2' height='12.2' rx='4.6' fill='none' stroke='black' stroke-width='2.4'/%3E%3Crect x='4.8' y='11' width='2.4' height='11' rx='1.2'/%3E%3C/svg%3E");
+    --chain-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='12'%3E%3Crect x='1.4' y='1.4' width='12.2' height='9.2' rx='4.6' fill='none' stroke='black' stroke-width='2.4'/%3E%3Crect x='11' y='4.8' width='11' height='2.4' rx='1.2'/%3E%3C/svg%3E");
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--col-gap) minmax(0, 1fr);
+    grid-template-areas:
+      'b0  .   .'
+      'e01 .   .'
+      'b1  .   .'
+      'e12 .   .'
+      'b2  e23 b3'
+      'e24 .   e36'
+      'b4  .   b6'
+      'e45 .   b6'
+      'b5  .   b6'
+      'e5x .   .'
+      'x   .   .';
+    grid-template-rows:
+      auto var(--link-h) auto var(--link-h) auto var(--link-h) auto var(--link-h) auto var(--link-h)
+      auto;
+  }
+
+  .graph--mini {
+    --link-h: 30px;
+    --col-gap: 44px;
+  }
+
+  .link-gap {
+    display: none;
+  }
+
+  .blk {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    min-width: 0;
+  }
+
+  .blk[data-phase='6'] {
+    align-self: start;
+  }
+
+  .blk__head {
+    display: grid;
+    gap: 2px;
+    padding: 6px 12px 7px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .blk__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 24px;
+    white-space: nowrap;
+  }
+
+  .blk__phase {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .blk__num {
+    font-size: 0.75rem;
+  }
+
+  .blk__status {
+    margin-left: auto;
+    display: inline-flex;
+  }
+
+  .blk__here,
+  .blk__confirmed {
+    display: none;
+  }
+
+  .blk__pending {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-3);
+  }
+
+  .blk__pending::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    vertical-align: 0.05em;
+  }
+
+  .blk__confirmed {
+    align-items: center;
+    gap: 4px;
+    padding: 1px 7px 1px 5px;
+    border-radius: 3px;
+    background: var(--green-ink);
+    color: var(--on-green);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .blk__confirmed :global(svg) {
+    stroke-width: 2.6;
+  }
+
+  .blk__hashes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 14px;
+    font-size: 0.72rem;
+    color: var(--ink-2);
+  }
+
+  .blk__k {
+    color: var(--ink-3);
+  }
+
+  .blk__prev--par .blk__k {
+    color: var(--blue-ink);
+  }
+
+  .blk[data-state='done'] {
+    border-style: solid;
+    border-color: var(--green);
+    box-shadow: var(--shadow);
+  }
+
+  .blk[data-state='done']:not([data-current]) .blk__head {
+    background: var(--green-soft);
+    border-bottom-color: color-mix(in srgb, var(--green) 35%, transparent);
+  }
+
+  .blk[data-state='done'] .blk__pending {
+    display: none;
+  }
+
+  .blk[data-state='done'] .blk__confirmed {
+    display: inline-flex;
+  }
+
+  :global(.is-hydrated) .blk[data-state='done'] .blk__confirmed {
+    transition:
+      opacity 200ms var(--ease-out),
+      scale 200ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      scale: 0.9;
+    }
+  }
+
+  .blk[data-current] {
+    border-style: solid;
+    border-color: var(--ink);
+    box-shadow:
+      0 0 0 3px var(--yellow),
+      var(--shadow);
+  }
+
+  .blk[data-current] .blk__head {
+    background: var(--yellow);
+    border-bottom-color: color-mix(in srgb, var(--yellow) 60%, var(--ink));
+  }
+
+  .blk[data-current] .blk__phase,
+  .blk[data-current] .blk__num,
+  .blk[data-current] .blk__hashes,
+  .blk[data-current] .blk__k {
+    color: var(--on-yellow);
+  }
+
+  .blk[data-current] .blk__pending {
+    display: none;
+  }
+
+  .blk[data-current] .blk__here {
+    display: inline-flex;
+    background: var(--on-yellow);
+    color: var(--yellow);
+    border-color: var(--on-yellow);
+  }
+
+  .blk__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    padding: 14px 16px 16px;
+  }
+
+  .blk__foot {
+    display: grid;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+
+  .blk__title {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  .blk__link {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .blk__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+  }
+
+  .blk__link:focus-visible {
+    outline: none;
+  }
+
+  .blk__link:focus-visible::after {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+  }
+
+  .blk__goal {
+    color: var(--ink-2);
+    font-size: 0.975rem;
+    line-height: 1.5;
+  }
+
+  .blk__par {
+    font-size: 0.9rem;
+    color: var(--blue-ink);
+  }
+
+  .blk__cells {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+
+  .cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1.5px solid var(--green);
+    background: transparent;
+  }
+
+  .cell--opt {
+    border-style: dashed;
+    border-color: var(--blue);
+  }
+
+  .cell[data-done] {
+    background: var(--green);
+  }
+
+  .cell--opt[data-done] {
+    background: var(--blue);
+    border-style: solid;
+  }
+
+  :global(.is-hydrated) .cell {
+    transition: background-color 180ms ease;
+  }
+
+  .blk__meta {
+    font-size: 0.78rem;
+  }
+
+  .blk__dot {
+    margin-inline: 0.35em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .blk {
+      transition: border-color 160ms ease;
+    }
+    .blk:not([data-current], [data-state='done']):hover {
+      border-color: var(--ink-2);
+    }
+    .blk:hover .blk__name {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.2em;
+    }
+  }
+
+  .blk:active {
+    transform: scale(0.99);
+  }
+
+  .blk--exit {
+    color: var(--ink);
+    text-decoration: none;
+    border-style: solid;
+    border-color: var(--green);
+  }
+
+  .blk--exit .blk__head {
+    background: var(--green-soft);
+    border-bottom-color: color-mix(in srgb, var(--green) 40%, transparent);
+  }
+
+  .blk--exit .blk__phase,
+  .blk--exit .blk__num {
+    color: var(--green-ink);
+  }
+
+  .blk__body--exit {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-weight: 600;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .blk--exit:hover {
+      background: var(--green-soft);
+    }
+  }
+
+  .link {
+    position: relative;
+    min-height: var(--link-h);
+  }
+
+  .link__chain,
+  .link__fill {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: calc(var(--link-x) - 6px);
+    width: 12px;
+    mask: var(--chain-v) center top / 12px 22px repeat-y;
+  }
+
+  .link--main .link__chain {
+    background: color-mix(in srgb, var(--green) 38%, transparent);
+  }
+
+  .link--main .link__fill {
+    background: var(--green);
+    clip-path: inset(0 0 100% 0);
+  }
+
+  :global(.is-hydrated) .link--main .link__fill {
+    transition: clip-path 220ms var(--ease-out);
+  }
+
+  .link--main[data-taken] .link__fill {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .link--side .link__chain {
+    background: var(--blue);
+    opacity: 0.8;
+  }
+
+  .link--side .link__fill {
+    display: none;
+  }
+
+  .link__label {
+    position: absolute;
+    left: calc(var(--link-x) + 12px);
+    top: 50%;
+    translate: 0 -50%;
+    font-size: 0.72rem;
+    color: var(--blue-ink);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 881px) {
+    .link--e23 .link__chain {
+      top: calc(50% - 6px);
+      bottom: auto;
+      left: -3px;
+      right: -3px;
+      width: auto;
+      height: 12px;
+      mask: var(--chain-h) left center / 22px 12px repeat-x;
+    }
+    .link--e23 .link__label {
+      left: 50%;
+      top: calc(50% - 18px);
+      translate: -50% -50%;
+    }
+    .graph--mini .link__label {
+      display: none;
+    }
+  }
+
+  /* Phone: one column with the main chain on the left; parallel phases hang off it as an indented branch. */
+  @media (max-width: 880px) {
+    .graph {
+      --link-h: 36px;
+      --link-x: 15px;
+      grid-template-columns: 30px minmax(0, 1fr);
+      grid-template-areas:
+        'b0  b0'
+        'e01 e01'
+        'b1  b1'
+        'e12 e12'
+        'b2  b2'
+        'e24 e23'
+        'e24 b3'
+        'e24 e36'
+        'e24 b6'
+        'e24 gap'
+        'b4  b4'
+        'e45 e45'
+        'b5  b5'
+        'e5x e5x'
+        'x   x';
+      grid-template-rows: none;
+    }
+    .graph--mini {
+      --link-h: 24px;
+    }
+    .link-gap {
+      display: block;
+      grid-area: gap;
+      min-height: var(--link-h);
+    }
+    .link--e23,
+    .link--e36 {
+      --link-x: 22px;
+    }
+  }
+
+  .graph--mini .blk__head {
+    padding: 4px 10px 5px;
+  }
+
+  .graph--mini .blk__row {
+    min-height: 22px;
+  }
+
+  .graph--mini .blk__body {
+    padding: 8px 12px 10px;
+    gap: 6px;
+  }
+
+  .graph--mini .blk__title {
+    font-size: 1.0625rem;
+  }
+
+  .graph--mini .blk__foot {
+    padding-top: 0;
+  }
+
+  .graph--mini .cell {
+    width: 10px;
+    height: 10px;
+  }
+
+  .graph--mini .blk__body--exit {
+    padding-block: 10px;
+    font-size: 0.95rem;
+  }
+</style>

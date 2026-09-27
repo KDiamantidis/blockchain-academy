@@ -1,0 +1,195 @@
+# Γλωσσάρι
+#
+# Το id είναι το anchor της σελίδας (/glossary#id) και το όνομα που
+# χρησιμοποιούν οι φάσεις στο πεδίο `terms`. Μην το αλλάζεις χωρίς λόγο.
+# phase: η φάση όπου συναντάς πρώτη φορά τον όρο (προαιρετικό).
+
+- id: blockchain
+  term: Blockchain
+  phase: 1
+  definition: Ένα κοινό «βιβλίο» συναλλαγών που το κρατάνε χιλιάδες υπολογιστές ταυτόχρονα. Οι εγγραφές μπαίνουν σε blocks και κάθε block δείχνει στο προηγούμενο, οπότε κανείς δεν μπορεί να αλλάξει το παρελθόν χωρίς να το καταλάβουν όλοι.
+
+- id: block
+  term: Block
+  phase: 1
+  definition: Ένα πακέτο από transactions που προστίθεται στο blockchain. Περιέχει και το hash του προηγούμενου block. Έτσι σχηματίζεται η «αλυσίδα».
+
+- id: hash
+  term: Hash
+  phase: 1
+  definition: Ένα «δακτυλικό αποτύπωμα» σταθερού μήκους για οποιαδήποτε δεδομένα. Αν αλλάξεις έστω ένα bit στην είσοδο, το hash αλλάζει εντελώς. Από το hash δεν μπορείς να βρεις την είσοδο. Στο Ethereum η βασική hash function είναι η keccak256.
+
+- id: transaction
+  term: Transaction
+  phase: 1
+  definition: Μια υπογεγραμμένη εντολή που στέλνεις στο δίκτυο, π.χ. «στείλε 1 ETH» ή «κάλεσε αυτή τη συνάρτηση του contract». Μόλις μπει σε block, δεν αναιρείται.
+
+- id: gas
+  term: Gas
+  phase: 1
+  definition: Η μονάδα που μετράει πόση δουλειά κάνει ένα transaction. Όποιος στέλνει το transaction πληρώνει το gas σε ETH. Έτσι κανείς δεν μπορεί να φορτώσει το δίκτυο δωρεάν ή να τρέξει ατέρμονο βρόχο.
+
+- id: wallet
+  term: Wallet
+  phase: 0
+  definition: Το πρόγραμμα που κρατάει τα κλειδιά σου και υπογράφει transactions για λογαριασμό σου (π.χ. MetaMask). Τα χρήματα δεν είναι «μέσα» στο wallet, είναι στο blockchain. Το wallet έχει μόνο το κλειδί.
+
+- id: private-key
+  term: Private key
+  phase: 0
+  definition: Το μυστικό κλειδί που αποδεικνύει ότι ένας λογαριασμός είναι δικός σου. Όποιος το έχει ελέγχει τον λογαριασμό. Δεν το βάζεις ποτέ σε κώδικα, σε repo ή σε site.
+
+- id: seed-phrase
+  term: Seed phrase
+  phase: 0
+  definition: 12 ή 24 λέξεις από τις οποίες βγαίνουν όλα τα private keys του wallet σου. Είναι το master κλειδί. Κανένα σοβαρό support δεν θα σου το ζητήσει ποτέ.
+
+- id: public-key
+  term: Public key / Address
+  phase: 3
+  definition: Το δημόσιο κομμάτι του ζεύγους κλειδιών. Από αυτό βγαίνει η διεύθυνσή σου (address, π.χ. 0x71C…), που τη δίνεις σε όποιον θέλει να σου στείλει κάτι.
+
+- id: git
+  term: Git / GitHub
+  phase: 0
+  definition: Το Git κρατάει ιστορικό από κάθε αλλαγή στον κώδικά σου (commits) και σε αφήνει να δουλεύεις σε παράλληλα branches. Το GitHub φιλοξενεί τα repos και εκεί γίνονται τα pull requests και τα code reviews.
+
+- id: testnet
+  term: Testnet
+  phase: 0
+  definition: Ένα δίκτυο για δοκιμές που δουλεύει όπως το κανονικό, αλλά το ETH του δεν έχει αξία. Εκεί δουλεύουμε πάντα.
+
+- id: mainnet
+  term: Mainnet
+  phase: 0
+  definition: Το κανονικό δίκτυο, όπου το ETH έχει πραγματική αξία. Σε αυτόν τον οδηγό δεν το χρησιμοποιούμε.
+
+- id: sepolia
+  term: Sepolia
+  phase: 4
+  definition: Το βασικό testnet του Ethereum για developers. Εκεί κάνεις deploy τα Speedrun challenges.
+
+- id: faucet
+  term: Faucet
+  phase: 4
+  definition: Ένα site που σου δίνει δωρεάν testnet ETH για να πληρώνεις gas στις δοκιμές σου. Συνήθως έχει όρια ανά ημέρα.
+
+- id: smart-contract
+  term: Smart contract
+  phase: 1
+  definition: Ένα πρόγραμμα που ζει πάνω στο blockchain και τρέχει ακριβώς όπως γράφτηκε. Έχει δικό του address και δικό του storage. Μετά το deploy συνήθως δεν αλλάζει, γι' αυτό ένα bug εκεί κοστίζει.
+
+- id: solidity
+  term: Solidity
+  phase: 2
+  definition: Η πιο διαδεδομένη γλώσσα για smart contracts στο Ethereum. Μοιάζει λίγο με JavaScript και C++ και γίνεται compile σε bytecode για το EVM.
+
+- id: evm
+  term: EVM
+  phase: 2
+  definition: Ethereum Virtual Machine. Η «μηχανή» που εκτελεί το bytecode των smart contracts σε κάθε κόμβο του δικτύου, με τον ίδιο τρόπο παντού.
+
+- id: remix
+  term: Remix IDE
+  phase: 2
+  definition: Ένας editor για Solidity που τρέχει στον browser. Γράφεις, κάνεις compile και δοκιμάζεις contracts χωρίς να εγκαταστήσεις τίποτα.
+
+- id: foundry
+  term: Foundry
+  phase: 2
+  definition: Εργαλεία για Solidity που τρέχουν από το terminal. Με αυτά κάνεις build, tests (γραμμένα σε Solidity) και deploy. Είναι το βασικό εργαλείο στα περισσότερα security courses και CTFs.
+
+- id: erc20
+  term: ERC20
+  phase: 2
+  definition: Το standard για fungible tokens, όπου κάθε μονάδα είναι ίδια με την άλλη (όπως τα νομίσματα). Ορίζει συναρτήσεις όπως transfer, balanceOf και approve.
+
+- id: erc721
+  term: ERC721
+  phase: 4
+  definition: Το standard για non-fungible tokens (NFTs), όπου κάθε token είναι μοναδικό και έχει δικό του id.
+
+- id: nft
+  term: NFT
+  phase: 6
+  definition: Non-fungible token. Ένα μοναδικό token (συνήθως ERC721) που αντιπροσωπεύει κάτι συγκεκριμένο, π.χ. ένα πιστοποιητικό ή ένα αντικείμενο σε παιχνίδι.
+
+- id: token
+  term: Token
+  phase: 1
+  definition: Μια μονάδα αξίας ή δικαιώματος που ορίζεται από ένα smart contract. Το ETH δεν είναι token, είναι το «εγγενές» νόμισμα του Ethereum. Τα tokens είναι contracts που κρατάνε λίστες με υπόλοιπα.
+
+- id: merkle-tree
+  term: Merkle tree
+  phase: 3
+  definition: Ένα δέντρο από hashes, όπου κάθε κόμβος είναι το hash των παιδιών του. Με αυτό αποδεικνύεις ότι ένα στοιχείο ανήκει σε ένα μεγάλο σύνολο χωρίς να στείλεις όλο το σύνολο.
+
+- id: state
+  term: State
+  phase: 3
+  definition: Η τρέχουσα κατάσταση του Ethereum, δηλαδή όλα τα υπόλοιπα, όλος ο κώδικας και όλο το storage των contracts. Κάθε transaction μετακινεί το state από μια κατάσταση στην επόμενη.
+
+- id: storage-slot
+  term: Storage slot
+  phase: 5
+  definition: Το storage ενός contract είναι ένας τεράστιος πίνακας από θέσεις (slots) των 32 bytes. Οι μεταβλητές μπαίνουν σε slots με συγκεκριμένη σειρά, και οποιοσδήποτε μπορεί να διαβάσει οποιοδήποτε slot.
+
+- id: dapp
+  term: dApp
+  phase: 4
+  definition: Decentralized application. Μια εφαρμογή με front-end (site) που μιλάει με smart contracts μέσω του wallet του χρήστη.
+
+- id: dex
+  term: DEX
+  phase: 4
+  definition: Decentralized exchange. Ένα smart contract που ανταλλάσσει tokens χωρίς κεντρικό οργανισμό, συνήθως με ένα pool ρευστότητας και μια μαθηματική σχέση για την τιμή.
+
+- id: oracle
+  term: Oracle
+  phase: 4
+  definition: Μια υπηρεσία που φέρνει δεδομένα από έξω (π.χ. τιμές) μέσα στο blockchain. Αν το oracle πει ψέματα ή χειραγωγηθεί, το contract που το εμπιστεύεται κάνει λάθη. Αυτό είναι κλασική επίθεση.
+
+- id: stablecoin
+  term: Stablecoin
+  phase: 4
+  definition: Ένα token που προσπαθεί να κρατάει σταθερή τιμή, συνήθως 1 δολάριο. Το πετυχαίνει είτε με αποθεματικά είτε με εξασφαλίσεις (collateral) μέσα σε smart contracts.
+
+- id: defi
+  term: DeFi
+  phase: 6
+  definition: Decentralized finance. Χρηματοοικονομικές υπηρεσίες (ανταλλαγές, δάνεια, stablecoins) που τρέχουν σε smart contracts αντί για τράπεζες. Εκεί γίνονται οι μεγαλύτερες κλοπές, γι' αυτό μας ενδιαφέρει το security του.
+
+- id: tokenization
+  term: Tokenization
+  phase: 6
+  definition: Η αναπαράσταση ενός asset (π.χ. ακίνητο, ομόλογο, εισιτήριο) ως token σε blockchain, ώστε να μεταφέρεται και να ελέγχεται από smart contracts.
+
+- id: reentrancy
+  term: Reentrancy
+  phase: 5
+  definition: Μια επίθεση όπου ένα contract στέλνει ETH ή καλεί εξωτερικό contract πριν ενημερώσει το δικό του state. Ο attacker ξαναμπαίνει στη συνάρτηση πριν αυτή τελειώσει και π.χ. κάνει ανάληψη πολλές φορές.
+
+- id: delegatecall
+  term: delegatecall
+  phase: 5
+  definition: Μια κλήση που τρέχει τον κώδικα ενός άλλου contract πάνω στο storage του contract που καλεί. Είναι χρήσιμη για proxies και libraries, αλλά είναι και πηγή πολλών bugs.
+
+- id: tx-origin
+  term: tx.origin vs msg.sender
+  phase: 5
+  definition: Το msg.sender είναι ο άμεσος καλών (wallet ή contract). Το tx.origin είναι πάντα το wallet που ξεκίνησε όλο το transaction. Αν ελέγχεις δικαιώματα με tx.origin, ένα ενδιάμεσο contract μπορεί να σε ξεγελάσει.
+
+- id: selfdestruct
+  term: selfdestruct
+  phase: 5
+  definition: Μια εντολή που στέλνει όλο το ETH ενός contract σε μια διεύθυνση, ακόμα κι αν αυτή δεν το δέχεται. Στις νεότερες εκδόσεις του Ethereum έχει περιοριστεί, αλλά εμφανίζεται ακόμα σε CTFs.
+
+- id: ctf
+  term: CTF
+  phase: 5
+  definition: Capture The Flag. Διαγωνισμός security όπου λύνεις challenges για να βρεις ένα «flag». Στα blockchain challenges συνήθως πρέπει να αδειάσεις ή να πάρεις τον έλεγχο ενός ευάλωτου contract.
+
+- id: write-up
+  term: Write-up
+  phase: 5
+  definition: Μια σύντομη περιγραφή του πώς έλυσες ένα challenge, γιατί ήταν ευάλωτο και πώς διορθώνεται. Κρατάει τη γνώση και είναι το καλύτερο υλικό για το portfolio σου.

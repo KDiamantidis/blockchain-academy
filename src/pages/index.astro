@@ -1,0 +1,319 @@
+---
+import Base from '../layouts/Base.astro';
+import Graph from '../components/Graph.astro';
+import Icon from '../components/Icon.astro';
+import { getPhases, href } from '../lib/site';
+
+const phases = await getPhases();
+---
+
+<Base>
+  <section class="hero wrap">
+    <div class="hero__copy">
+      <h1>Από το μηδέν στο hacking smart contracts.</h1>
+      <p class="hero__lead">
+        Ένας οδηγός βήμα βήμα από την ομάδα Blockchain του Democritus Sec Team. Σε στέλνει στα καλύτερα δωρεάν courses με τη σωστή
+        σειρά, σου λέει γιατί μετράει το καθένα και κρατάει την πρόοδό σου.
+      </p>
+      <p class="hero__lead">
+        Στο τέλος λύνεις blockchain challenges όπως στα CTFs και μπαίνεις σε ένα πραγματικό ομαδικό project για το portfolio σου.
+      </p>
+      <div class="hero__cta">
+        <a
+          class="btn"
+          href={href('start/')}
+          data-resume
+          data-phase-base={href('phases/__N__/')}
+          data-projects-href={href('projects/')}
+        >
+          <span data-resume-label>Ξεκίνα εδώ</span>
+          <Icon name="arrow-right" size={18} />
+        </a>
+        <a class="btn btn--ghost" href={href('roadmap/')}>Δες όλο το roadmap</a>
+      </div>
+      <p class="hero__note">Δωρεάν, χωρίς λογαριασμό. Η πρόοδος μένει στον browser σου.</p>
+    </div>
+
+    <div class="hero__graph">
+      <h2 class="visually-hidden">Οι φάσεις του οδηγού</h2>
+      <Graph phases={phases} variant="mini" headingLevel="h3" />
+      <ul class="mini-key" aria-label="Υπόμνημα">
+        <li>
+          <svg viewBox="0 0 36 12" aria-hidden="true"><g fill="none" stroke="var(--green)" stroke-width="2"><rect x="1" y="2" width="11" height="8" rx="4"></rect><rect x="23" y="2" width="11" height="8" rx="4"></rect></g><rect x="10" y="5" width="15" height="2" rx="1" fill="var(--green)"></rect></svg>
+          κύρια διαδρομή
+        </li>
+        <li>
+          <svg viewBox="0 0 36 12" aria-hidden="true"><g fill="none" stroke="var(--blue)" stroke-width="2"><rect x="1" y="2" width="11" height="8" rx="4"></rect><rect x="23" y="2" width="11" height="8" rx="4"></rect></g><rect x="10" y="5" width="15" height="2" rx="1" fill="var(--blue)"></rect></svg>
+          παράλληλα
+        </li>
+        <li><span class="mini-key__here" aria-hidden="true"></span> εδώ είσαι</li>
+        <li><span class="mini-key__ok" aria-hidden="true"></span> confirmed</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="about wrap" aria-labelledby="about-title">
+    <div class="about__grid">
+      <div class="about__who">
+        <h2 id="about-title">Ποιοι είμαστε</h2>
+        <p>
+          Το Democritus Sec Team είναι η φοιτητική ομάδα κυβερνοασφάλειας και CTF του Δημοκρίτειου Πανεπιστημίου Θράκης. Η ομάδα
+          Blockchain ασχολείται με smart contracts: πώς χτίζονται και, κυρίως, πώς σπάνε.
+        </p>
+        <p>
+          Ο οδηγός είναι για φοιτητές από το 1ο μέχρι το 4ο έτος. Αν δεν έχεις γράψει ποτέ κώδικα, ξεκινάς από τη Φάση 0. Αν ξέρεις
+          ήδη, <a href={href('start/')}>το quiz</a> σε στέλνει πιο μπροστά.
+        </p>
+        <p class="about__open">
+          Είσαι από άλλη ομάδα ή άλλο πανεπιστήμιο; Χρησιμοποίησε τον οδηγό ελεύθερα.
+        </p>
+      </div>
+
+      <figure class="letter">
+        <div class="letter__head">
+          <span class="addr">README.md</span>
+          <span class="addr">Πώς το βλέπω</span>
+        </div>
+        <blockquote class="letter__body">
+          <p>
+            <strong>Η πρόοδός σου εξαρτάται από σένα.</strong> Εγώ δίνω ενέργεια, κίνητρο και κατεύθυνση. Το μεγαλύτερο μέρος της
+            μάθησης είναι αυτομελέτη.
+          </p>
+          <p>
+            <strong>Δεν είσαι ποτέ χωρίς βοήθεια.</strong> Ρώτα εμένα ή την ομάδα στο <span class="mono">#block-chain</span> στο
+            Discord, όποτε θες.
+          </p>
+          <p>
+            <strong>Χρησιμοποίησε AI σαν δάσκαλο, όχι σαν λύτη.</strong> Claude, ChatGPT ή ό,τι άλλο. «Εξήγησέ μου το delegatecall»
+            είναι σωστό. «Λύσε μου το level 6 του Ethernaut» δεν είναι.
+          </p>
+        </blockquote>
+        <figcaption class="letter__sig">
+          <span class="letter__name">Κωνσταντίνος Διαμαντίδης</span>
+          <span class="letter__role">Blockchain Team Leader</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="next wrap" aria-labelledby="next-title">
+    <h2 id="next-title" class="visually-hidden">Επόμενα βήματα</h2>
+    <a class="next__link" href={href('start/')}>
+      <span class="next__title">Από πού ξεκινάω; <Icon name="arrow-right" size={17} /></span>
+      <span class="next__text">4 ερωτήσεις και σου λέμε από ποια φάση να ξεκινήσεις.</span>
+    </a>
+    <a class="next__link" href={href('faq/')}>
+      <span class="next__title">Πώς δουλεύουμε <Icon name="arrow-right" size={17} /></span>
+      <span class="next__text">Βοήθεια, κανόνας για το AI, GitHub και ασφάλεια.</span>
+    </a>
+    <a class="next__link" href={href('projects/')}>
+      <span class="next__title">Ομαδικά Projects <Icon name="arrow-right" size={17} /></span>
+      <span class="next__text">Τι χτίζουμε μαζί όταν τελειώσεις τον οδηγό.</span>
+    </a>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 48px 72px;
+    align-items: center;
+    padding-block: clamp(40px, 7vw, 88px) 64px;
+  }
+  .hero__copy {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 1.3rem + 3.6vw, 3.6rem);
+    max-width: 14ch;
+  }
+  .hero__lead {
+    font-size: 1.15rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 50ch;
+  }
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .hero__note {
+    font-size: 0.9rem;
+    color: var(--ink-3);
+  }
+  .hero__graph {
+    display: grid;
+    gap: 12px;
+  }
+  .mini-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--ink-2);
+  }
+  .mini-key li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mini-key svg {
+    width: 30px;
+    height: 10px;
+  }
+  .mini-key__ok {
+    width: 22px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1.5px solid var(--green);
+    background: var(--green-soft);
+  }
+  .mini-key__here {
+    width: 22px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--yellow);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--yellow) 60%, var(--ink));
+  }
+
+  .about {
+    padding-block: 48px;
+  }
+  .about__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 40px 72px;
+    align-items: start;
+  }
+  .about__who {
+    display: grid;
+    gap: 14px;
+    max-width: 56ch;
+  }
+  .about__who h2 {
+    margin-bottom: 4px;
+  }
+  .about__who p {
+    color: var(--ink-2);
+  }
+  .about__open {
+    padding-top: 14px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .letter {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .letter__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .letter__head .addr:first-child {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .letter__body {
+    margin: 0;
+    padding: 20px 22px 8px;
+    display: grid;
+    gap: 14px;
+    font-size: 1.05rem;
+  }
+  .letter__body strong {
+    display: block;
+    color: var(--ink);
+  }
+  .letter__body p {
+    color: var(--ink-2);
+  }
+  .letter__sig {
+    display: grid;
+    padding: 12px 22px 20px;
+    margin-inline: 22px;
+    padding-inline: 0;
+    border-top: 1px dashed var(--border);
+  }
+  .letter__name {
+    font-weight: 700;
+  }
+  .letter__role {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+
+  .next {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 24px;
+  }
+  .next__link {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    padding: 20px 20px 22px;
+    border-top: 2px solid var(--ink);
+    color: var(--ink);
+    text-decoration: none;
+    transition: background-color 160ms ease;
+  }
+  .next__link + .next__link {
+    border-left: 1px solid var(--border-soft);
+  }
+  .next__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+  .next__text {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .next__link:hover {
+      background: var(--surface);
+    }
+    .next__link:hover .next__title {
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero,
+    .about__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .next {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .next__link + .next__link {
+      border-left: 0;
+    }
+    .next__link {
+      border-top-width: 1px;
+      border-top-color: var(--border);
+      padding-inline: 4px;
+    }
+  }
+</style>

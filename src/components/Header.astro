@@ -1,0 +1,282 @@
+---
+import Icon from './Icon.astro';
+import { href } from '../lib/site';
+
+const links = [
+  { path: 'roadmap/', label: 'Roadmap' },
+  { path: 'start/', label: 'Από πού ξεκινάω;' },
+  { path: 'projects/', label: 'Ομαδικά Projects' },
+  { path: 'glossary/', label: 'Γλωσσάρι' },
+  { path: 'faq/', label: 'Πώς δουλεύουμε' },
+];
+
+const current = Astro.url.pathname.replace(/\/?$/, '/');
+const isActive = (path: string) => {
+  const target = href(path);
+  if (path === 'roadmap/') return current === target || current.startsWith(href('phases/'));
+  return current === target;
+};
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={href()}>
+      <span class="brand__mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <rect x="1" y="1" width="9" height="6" rx="1" stroke="currentColor" stroke-width="1.6" />
+          <rect x="12" y="15" width="9" height="6" rx="1" stroke="currentColor" stroke-width="1.6" />
+          <path d="M5.5 7v4.5h11V15" stroke="var(--green)" stroke-width="1.8" />
+        </svg>
+      </span>
+      <span class="brand__text">Democritus Sec Team <span class="brand__sep">·</span> <strong>Blockchain</strong></span>
+    </a>
+
+    <nav class="nav" aria-label="Κύρια πλοήγηση">
+      <button
+        class="nav__toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="nav-list"
+        data-nav-toggle
+      >
+        <span class="nav__icon nav__icon--open"><Icon name="menu" size={20} /></span>
+        <span class="nav__icon nav__icon--close"><Icon name="close" size={20} /></span>
+        <span class="visually-hidden">Μενού</span>
+      </button>
+      <ul class="nav__list" id="nav-list">
+        {
+          links.map((l) => (
+            <li>
+              <a href={href(l.path)} aria-current={isActive(l.path) ? 'page' : undefined}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <button class="theme" type="button" data-theme-toggle aria-label="Αλλαγή θέματος">
+      <span class="theme__icon theme__icon--sun"><Icon name="sun" size={19} /></span>
+      <span class="theme__icon theme__icon--moon"><Icon name="moon" size={19} /></span>
+    </button>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const list = document.getElementById('nav-list');
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', String(open));
+    list?.classList.toggle('is-open', open);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      toggle.setAttribute('aria-expanded', 'false');
+      list?.classList.remove('is-open');
+      toggle.focus();
+    }
+  });
+
+  const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const root = document.documentElement;
+  const systemDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const effective = () => root.dataset.theme ?? (systemDark() ? 'dark' : 'light');
+  const syncLabel = () => {
+    const next = effective() === 'dark' ? 'φωτεινό' : 'σκοτεινό';
+    themeBtn?.setAttribute('aria-label', `Αλλαγή σε ${next} θέμα`);
+  };
+  syncLabel();
+  themeBtn?.addEventListener('click', () => {
+    const next = effective() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('dst-theme', next);
+    } catch {}
+    const color = next === 'dark' ? '#26292e' : '#dce3ea';
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', color));
+    syncLabel();
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--border-soft);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: var(--header-h);
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    margin-right: auto;
+  }
+  .brand__mark {
+    display: inline-flex;
+    color: var(--ink);
+  }
+  .brand__sep {
+    color: var(--ink-3);
+  }
+  .brand strong {
+    font-weight: 700;
+  }
+  .nav__list {
+    display: flex;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav__list a {
+    display: block;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .nav__list a[aria-current='page'] {
+    color: var(--ink);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--border-soft);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .nav__list a:hover {
+      color: var(--ink);
+      background: var(--surface);
+    }
+  }
+  .nav__toggle,
+  .theme {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 140ms var(--ease-out);
+  }
+  .nav__toggle:active,
+  .theme:active {
+    transform: scale(0.94);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .theme:hover,
+    .nav__toggle:hover {
+      background: var(--surface);
+      border-color: var(--border-soft);
+    }
+  }
+  .nav__icon,
+  .theme__icon {
+    grid-area: 1 / 1;
+    display: inline-flex;
+  }
+  .nav__toggle {
+    display: none;
+  }
+  .nav__icon--close,
+  .nav__toggle[aria-expanded='true'] .nav__icon--open {
+    display: none;
+  }
+  .nav__toggle[aria-expanded='true'] .nav__icon--close {
+    display: inline-flex;
+  }
+  .theme__icon--moon {
+    display: none;
+  }
+  :global([data-theme='dark']) .theme__icon--moon {
+    display: inline-flex;
+  }
+  :global([data-theme='dark']) .theme__icon--sun {
+    display: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .theme__icon--moon {
+      display: inline-flex;
+    }
+    :global(:root:not([data-theme='light'])) .theme__icon--sun {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .brand__text {
+      font-size: 0.9rem;
+    }
+    .nav {
+      order: 3;
+    }
+    .nav__toggle {
+      display: inline-grid;
+    }
+    .nav__list {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      gap: 0;
+      padding: 8px var(--gutter) 16px;
+      background: var(--canvas);
+      border-bottom: 1px solid var(--border-soft);
+      box-shadow: var(--shadow);
+      overscroll-behavior: contain;
+    }
+    .nav__list.is-open {
+      display: flex;
+      transition:
+        opacity 180ms var(--ease-out),
+        translate 180ms var(--ease-out);
+      @starting-style {
+        opacity: 0;
+        translate: 0 -6px;
+      }
+    }
+    .nav__list a {
+      padding: 12px 8px;
+      font-size: 1.05rem;
+      border-bottom: 1px solid var(--border-soft);
+      border-radius: 0;
+    }
+    .nav__list li:last-child a {
+      border-bottom: 0;
+    }
+    .nav__list a[aria-current='page'] {
+      background: transparent;
+      box-shadow: none;
+      color: var(--ink);
+      font-weight: 700;
+    }
+  }
+  @media (max-width: 420px) {
+    .brand__text {
+      font-size: 0.82rem;
+    }
+    .bar {
+      gap: 4px;
+    }
+  }
+</style>

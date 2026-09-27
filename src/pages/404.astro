@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import { href } from '../lib/site';
+---
+
+<Base title="Δεν βρέθηκε">
+  <div class="wrap wrap--narrow page">
+    <div class="blk404">
+      <div class="blk404__head">
+        <span class="addr">block #404</span>
+        <span class="addr">orphaned</span>
+      </div>
+      <div class="blk404__body">
+        <h1>Αυτή η σελίδα δεν υπάρχει.</h1>
+        <p>Ίσως άλλαξε θέση. Γύρνα στο roadmap και συνέχισε από εκεί.</p>
+        <p><a class="btn" href={href('roadmap/')}>Στο roadmap</a></p>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 80px;
+  }
+  .blk404 {
+    background: var(--surface);
+    border: 1px dashed var(--red);
+    border-radius: var(--radius);
+  }
+  .blk404__head {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: var(--red-soft);
+    border-bottom: 1px dashed var(--red);
+  }
+  .blk404__head .addr {
+    color: var(--red-ink);
+  }
+  .blk404__body {
+    display: grid;
+    gap: 14px;
+    padding: 24px 20px;
+  }
+  .blk404__body p {
+    color: var(--ink-2);
+  }
+</style>

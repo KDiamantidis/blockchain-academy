@@ -1,0 +1,82 @@
+---
+interface Props {
+  label: string;
+  phase?: number;
+  reqTotal?: number;
+}
+
+const { label, phase, reqTotal = 0 } = Astro.props;
+const scope = phase === undefined ? { 'data-overall': '' } : { 'data-phase': phase };
+---
+
+<div class="prog" {...scope}>
+  <div class="prog__row">
+    <span class="prog__label">{label}</span>
+    {
+      phase === undefined ? (
+        <span class="addr prog__num">
+          <span data-overall-pct>0%</span>{" "}
+          <span class="prog__sub">
+            (<span data-overall-count>0/{reqTotal}</span> υποχρεωτικά βήματα)
+          </span>
+        </span>
+      ) : (
+        <span class="addr prog__num">
+          <span data-count-req>0/{reqTotal}</span> υποχρεωτικά
+        </span>
+      )
+    }
+  </div>
+  <div
+    class="prog__track"
+    role={phase === undefined ? 'progressbar' : undefined}
+    aria-label={phase === undefined ? label : undefined}
+    aria-valuemin={phase === undefined ? 0 : undefined}
+    aria-valuemax={phase === undefined ? 100 : undefined}
+    aria-valuenow={phase === undefined ? 0 : undefined}
+  >
+    <span class="prog__fill"></span>
+  </div>
+</div>
+
+<style>
+  .prog {
+    --p: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .prog__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px 16px;
+  }
+  .prog__label {
+    font-weight: 600;
+  }
+  .prog__num {
+    color: var(--ink-2);
+  }
+  .prog__sub {
+    color: var(--ink-3);
+  }
+  .prog__track {
+    position: relative;
+    height: 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .prog__fill {
+    position: absolute;
+    inset: 0;
+    background: var(--green);
+    transform: scaleX(var(--p));
+    transform-origin: left;
+  }
+  :global(.is-hydrated) .prog__fill {
+    transition: transform 220ms var(--ease-out);
+  }
+</style>

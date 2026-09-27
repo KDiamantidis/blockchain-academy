@@ -1,0 +1,12 @@
+# Ομαδικά Projects
+#
+# Για νέο project, αντέγραψε ένα block και άλλαξε τα πεδία.
+# status: Ιδέα | Σε σχεδιασμό | Σε εξέλιξη | Ολοκληρώθηκε
+# phases: οι φάσεις του οδηγού που χρειάζεται (0–6)
+# link / linkLabel: προαιρετικά (repo ή συζήτηση)
+
+- id: voting-dapp
+  name: Voting dApp
+  status: Ιδέα
+  description: Μια decentralized εφαρμογή ψηφοφορίας. Τη χτίζουμε μαζί και μετά προσπαθούμε να τη σπάσουμε εμείς οι ίδιοι (security review / εσωτερικό CTF).
+  phases: [2, 4, 5]
