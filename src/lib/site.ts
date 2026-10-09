@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import { getCollection, type CollectionEntry } from 'astro:content';
+import type { GuidedTrack } from './tracks';
 
 export type Phase = CollectionEntry<'phases'>;
 
-export const SITE_NAME = 'Democritus Sec Team · Blockchain';
+export const TEAM_NAME = 'Democritus Sec Team';
 export const REPO_URL = 'https://github.com/KDiamantidis/blockchain-academy';
 
 export function href(path = ''): string {
@@ -12,17 +13,25 @@ export function href(path = ''): string {
   return clean ? `${base}/${clean}` : `${base}/`;
 }
 
-export async function getPhases(): Promise<Phase[]> {
-  const phases = await getCollection('phases');
+export function linkTo(target: string): string {
+  return /^https?:\/\//.test(target) ? target : href(target);
+}
+
+export function trackOf(phase: Phase): string {
+  return phase.id.split('/')[0];
+}
+
+export async function getPhases(track: string): Promise<Phase[]> {
+  const phases = await getCollection('phases', (p) => trackOf(p) === track);
   return phases.sort((a, b) => a.data.order - b.data.order);
 }
 
-export function phaseHref(order: number): string {
-  return href(`phases/${order}/`);
+export function phaseHref(track: string, order: number): string {
+  return href(`${track}/phases/${order}/`);
 }
 
-export function blockLabel(order: number): string {
-  return `block #${order}`;
+export function addr(track: GuidedTrack, order: number): string {
+  return `${track.guide.addrPrefix}${order}`;
 }
 
 /** Parallel phases hang off the phase they run alongside; the others follow the previous main-line phase. */

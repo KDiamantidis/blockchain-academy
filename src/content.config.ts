@@ -8,6 +8,8 @@ const step = z.object({
   title: z.string(),
   provider: z.string().optional(),
   url: z.url().optional(),
+  // Section number of a heading in the phase's own text (e.g. "2.5"); the step links to that heading.
+  anchor: z.string().optional(),
   required: z.boolean(),
   note: z.string().optional(),
   duration: z.string().optional(),
@@ -23,7 +25,7 @@ const step = z.object({
 });
 
 const phases = defineCollection({
-  loader: glob({ pattern: '*.md', base: './src/content/phases' }),
+  loader: glob({ pattern: '*/*.md', base: './src/content/tracks' }),
   schema: z.object({
     order: z.number().int().min(0),
     title: z.string(),

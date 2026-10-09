@@ -1,14 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
-import Base from '../layouts/Base.astro';
-import { phaseHref } from '../lib/site';
+import Base from '../../layouts/Base.astro';
+import { phaseHref } from '../../lib/site';
+import { getTrack } from '../../lib/tracks';
+
+const track = getTrack('blockchain');
 
 const entries = (await getCollection('glossary')).sort((a, b) =>
   a.data.term.localeCompare(b.data.term, 'en', { sensitivity: 'base' }),
 );
 ---
 
-<Base title="Γλωσσάρι" description="Οι βασικοί όροι του blockchain και του smart contract security, εξηγημένοι στα ελληνικά.">
+<Base title="Γλωσσάρι" description="Οι βασικοί όροι του blockchain και του smart contract security, εξηγημένοι στα ελληνικά." track={track}>
   <div class="wrap wrap--narrow page">
     <header>
       <h1>Γλωσσάρι</h1>
@@ -35,7 +38,7 @@ const entries = (await getCollection('glossary')).sort((a, b) =>
             <dd>
               <p>{e.data.definition}</p>
               {e.data.phase !== undefined && (
-                <a class="gl__phase addr" href={phaseHref(e.data.phase)}>
+                <a class="gl__phase addr" href={phaseHref('blockchain', e.data.phase)}>
                   Φάση {e.data.phase}
                 </a>
               )}

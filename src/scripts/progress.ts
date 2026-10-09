@@ -2,7 +2,7 @@ type StepRef = { id: string; r: 0 | 1 };
 type PhaseRef = { order: number; steps: StepRef[] };
 type State = { done: Record<string, true>; start?: number };
 
-const KEY = 'dst-bc-progress-v1';
+const KEY = document.getElementById('phase-data')?.dataset.key ?? 'dst-progress';
 const EVENT = 'progress:change';
 
 let memory: State = { done: {} };
