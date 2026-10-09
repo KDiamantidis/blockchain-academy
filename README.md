@@ -1,17 +1,18 @@
-# Blockchain Academy
+# Democritus Sec Team Academy
 
-A self-study path from zero to smart contract security, made by the Blockchain team of **Democritus Sec Team**, the student cybersecurity and CTF team of Democritus University of Thrace.
+The learning site of **Democritus Sec Team**, the student cybersecurity and CTF team of Democritus University of Thrace.
 
-The site does not teach the material itself. It guides you through free external courses in the right order, explains why each step matters, and keeps track of your progress in your browser. The site is in Greek.
+The home page introduces the team and its sub-teams. Each sub-team has a short presentation, and teams with a guide get a placement quiz that sends you to the right point of their roadmap, depending on what you already know. Progress is kept in your browser. The site is in Greek.
 
 **Live site:** https://kdiamantidis.github.io/blockchain-academy/
 
 ## What's inside
 
-- **Roadmap**: seven phases, from setting up your tools to breaking smart contracts (Ethernaut, Damn Vulnerable DeFi).
-- **Placement quiz** ("Από πού ξεκινάω;"): up to four questions that send you to the right phase.
-- **Phase pages**: steps with required/optional labels, self-check questions, common mistakes and related glossary terms.
-- **Team projects**, **glossary** and **how we work** pages.
+- **Home page**: who we are, the four sub-teams and first steps for new members.
+- **Sub-teams**: Network Forensics, Web Security, Vulnerability Exploitation and Blockchain. A team without a guide yet shows "οδηγός σύντομα".
+- **Per-team guide** (`/<team>/`): a roadmap, a placement quiz ("Από πού ξεκινάω;") of up to five questions, and one page per phase or chapter with checkboxes, self-check questions and common mistakes.
+  - **Web Security**: seven chapters, written out on the site from the team's introductory guide.
+  - **Blockchain**: seven phases that point to free external courses, plus team projects, a glossary and a "how we work" page.
 
 Progress is stored only in `localStorage`. There is no backend, no login and no analytics.
 
@@ -31,9 +32,23 @@ npm run check     # type-check content and components
 
 All content lives in a few files. You rarely need to touch components.
 
-### Add or edit a resource in a phase
+### Sub-teams
 
-Each phase is one Markdown file in [`src/content/phases/`](src/content/phases/) (`phase-0.md` … `phase-6.md`). Steps live in the frontmatter:
+Every sub-team is an entry in [`src/lib/tracks.ts`](src/lib/tracks.ts): its `slug` (the URL), `name`, Discord `handle` and the `summary` paragraphs shown on the home page. A team gets its own guide once you add a `guide` object, which holds the hero text, the quiz questions, the safety note, the Discord channel and where the "finished" link goes.
+
+The `guide.storageKey` is where progress is saved. Changing it resets everyone's progress for that team.
+
+### Add a guide for a sub-team
+
+1. Add a `guide` to the team in [`src/lib/tracks.ts`](src/lib/tracks.ts). Copying the Web Security one is the easiest start.
+2. Create one Markdown file per phase or chapter in `src/content/tracks/<slug>/` (for example `chapter-1.md`), with `order` starting at 1 (Blockchain starts at 0).
+3. Point the quiz answers to those orders: an option either leads to another question (`next: 'q2'`) or ends the quiz (`result: 3`).
+
+Guides other than Blockchain are drawn as a straight chain, so no layout work is needed.
+
+### Phases and chapters
+
+Steps live in the frontmatter:
 
 ```yaml
 steps:
@@ -50,23 +65,23 @@ steps:
     hint: Optional spoiler, hidden behind "Τι μαθαίνεις".
 ```
 
+When the guide is written on the site itself (Web Security), a step uses `anchor: '2.5'` instead of `url`, and links to the heading `2.5` in the Markdown body of the same file.
+
 The step `id` is the key used to save progress. If you rename it, everyone loses the checkmark for that step.
 
-Other frontmatter fields: `title`, `goal`, `prerequisites`, `parallel` (for phases that can run alongside another), `checks` (3–5 self-check questions), `pitfalls` and `terms` (glossary ids). The Markdown body below the frontmatter is shown above the steps, and is useful for setup notes or rules.
+Other frontmatter fields: `title`, `goal`, `prerequisites`, `parallel` (Blockchain only, for phases that run alongside another), `checks` (3–5 self-check questions), `pitfalls` and `terms` (glossary ids). The Markdown body is shown on the page.
 
-### Add a phase
+### Blockchain extras
 
-Copy an existing phase file, give it the next `order`, and add it to the graph layout in [`src/components/Graph.astro`](src/components/Graph.astro) (the `links` list and the grid areas). A block's hash is derived from its order, and its `prevHash` from its parent phase.
-
-### Add a team project
-
-Add an entry to [`src/data/projects.yaml`](src/data/projects.yaml). `status` is one of `Ιδέα`, `Σε σχεδιασμό`, `Σε εξέλιξη`, `Ολοκληρώθηκε`.
-
-### Add a glossary term
-
-Add an entry to [`src/data/glossary.yaml`](src/data/glossary.yaml). The `id` becomes the anchor (`/glossary/#id`) and is what phases list under `terms`.
+- **Add a phase**: copy an existing file in [`src/content/tracks/blockchain/`](src/content/tracks/blockchain/), give it the next `order`, and add it to the hand-placed graph in [`src/components/Graph.astro`](src/components/Graph.astro) (the `links` list and the grid areas).
+- **Team projects**: [`src/data/projects.yaml`](src/data/projects.yaml). `status` is one of `Ιδέα`, `Σε σχεδιασμό`, `Σε εξέλιξη`, `Ολοκληρώθηκε`.
+- **Glossary**: [`src/data/glossary.yaml`](src/data/glossary.yaml). The `id` becomes the anchor (`/blockchain/glossary/#id`) and is what phases list under `terms`.
 
 The build validates every file against a schema ([`src/content.config.ts`](src/content.config.ts)), so a typo fails the build with a clear message instead of breaking the page.
+
+### Old links
+
+The site used to be the Blockchain guide alone. Old URLs such as `/roadmap/` or `/phases/2/` redirect to `/blockchain/...` (see [`astro.config.mjs`](astro.config.mjs)).
 
 ## Deploy
 
@@ -74,4 +89,4 @@ Every push to `main` builds the site and publishes it to GitHub Pages through [`
 
 ## Contributing
 
-Found a broken link or a better free resource? Open a pull request (each phase page has an "edit" link at the bottom) or ask in `#block-chain` on Discord.
+Found a broken link or a better free resource? Open a pull request (each phase page has an "edit" link at the bottom) or ask in `#chat` on Discord.
