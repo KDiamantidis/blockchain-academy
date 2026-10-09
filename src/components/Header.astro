@@ -1,26 +1,39 @@
 ---
 import Icon from './Icon.astro';
 import { href } from '../lib/site';
+import type { GuidedTrack } from '../lib/tracks';
 
-const links = [
-  { path: 'roadmap/', label: 'Roadmap' },
-  { path: 'start/', label: 'Από πού ξεκινάω;' },
-  { path: 'projects/', label: 'Ομαδικά Projects' },
-  { path: 'glossary/', label: 'Γλωσσάρι' },
-  { path: 'faq/', label: 'Πώς δουλεύουμε' },
-];
+interface Props {
+  track?: GuidedTrack;
+}
+
+const { track } = Astro.props;
+
+const links = track
+  ? [
+      { path: `${track.slug}/roadmap/`, label: 'Roadmap' },
+      { path: `${track.slug}/start/`, label: 'Από πού ξεκινάω;' },
+      ...track.guide.extraNav,
+      { path: '#teams', label: 'Όλες οι ομάδες' },
+    ]
+  : [
+      { path: '#about', label: 'Η ομάδα' },
+      { path: '#teams', label: 'Υποομάδες' },
+      { path: '#first-steps', label: 'Πρώτα βήματα' },
+    ];
 
 const current = Astro.url.pathname.replace(/\/?$/, '/');
 const isActive = (path: string) => {
+  if (path.startsWith('#')) return false;
   const target = href(path);
-  if (path === 'roadmap/') return current === target || current.startsWith(href('phases/'));
+  if (track && path === `${track.slug}/roadmap/`) return current === target || current.startsWith(href(`${track.slug}/phases/`));
   return current === target;
 };
 ---
 
 <header class="site-header">
   <div class="wrap bar">
-    <a class="brand" href={href()}>
+    <a class="brand" href={track ? href(`${track.slug}/`) : href()}>
       <span class="brand__mark" aria-hidden="true">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
           <rect x="1" y="1" width="9" height="6" rx="1" stroke="currentColor" stroke-width="1.6" />
@@ -28,7 +41,17 @@ const isActive = (path: string) => {
           <path d="M5.5 7v4.5h11V15" stroke="var(--green)" stroke-width="1.8" />
         </svg>
       </span>
-      <span class="brand__text">Democritus Sec Team <span class="brand__sep">·</span> <strong>Blockchain</strong></span>
+      {
+        track ? (
+          <span class="brand__text">
+            Democritus Sec Team <span class="brand__sep">·</span> <strong>{track.name}</strong>
+          </span>
+        ) : (
+          <span class="brand__text">
+            <strong>Democritus Sec Team</strong>
+          </span>
+        )
+      }
     </a>
 
     <nav class="nav" aria-label="Κύρια πλοήγηση">
@@ -47,7 +70,7 @@ const isActive = (path: string) => {
         {
           links.map((l) => (
             <li>
-              <a href={href(l.path)} aria-current={isActive(l.path) ? 'page' : undefined}>
+              <a href={l.path.startsWith('#') ? `${href()}${l.path}` : href(l.path)} aria-current={isActive(l.path) ? 'page' : undefined}>
                 {l.label}
               </a>
             </li>
@@ -70,6 +93,12 @@ const isActive = (path: string) => {
     const open = toggle.getAttribute('aria-expanded') !== 'true';
     toggle.setAttribute('aria-expanded', String(open));
     list?.classList.toggle('is-open', open);
+  });
+  // In-page anchors don't reload the page, so the open menu would otherwise cover the section it jumped to.
+  list?.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('a')) return;
+    toggle?.setAttribute('aria-expanded', 'false');
+    list.classList.remove('is-open');
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {

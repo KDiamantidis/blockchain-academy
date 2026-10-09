@@ -1,23 +1,35 @@
 ---
-import Base from '../layouts/Base.astro';
-import Graph from '../components/Graph.astro';
-import Legend from '../components/Legend.astro';
-import Progress from '../components/Progress.astro';
-import Icon from '../components/Icon.astro';
-import { getPhases, href } from '../lib/site';
+import Base from '../../layouts/Base.astro';
+import Graph from '../../components/Graph.astro';
+import Legend from '../../components/Legend.astro';
+import Progress from '../../components/Progress.astro';
+import Icon from '../../components/Icon.astro';
+import { getPhases, href } from '../../lib/site';
+import { GUIDED, type GuidedTrack } from '../../lib/tracks';
 
-const phases = await getPhases();
+export function getStaticPaths() {
+  return GUIDED.map((track) => ({ params: { track: track.slug }, props: { track } }));
+}
+
+interface Props {
+  track: GuidedTrack;
+}
+
+const { track } = Astro.props;
+const { guide } = track;
+const phases = await getPhases(track.slug);
+const branched = phases.some((p) => p.data.parallel);
 const reqTotal = phases.reduce((n, p) => n + p.data.steps.filter((s) => s.required).length, 0);
 ---
 
-<Base title="Roadmap" description="Όλες οι φάσεις του οδηγού, από την προετοιμασία μέχρι το hacking smart contracts, με την πρόοδό σου.">
+<Base title="Roadmap" description={guide.roadmapLead} track={track}>
   <div class="wrap">
     <header class="rm-head">
       <div class="rm-intro">
         <h1>Roadmap</h1>
         <p class="rm-lead">
-          Επτά φάσεις, από το στήσιμο των εργαλείων μέχρι να σπάς smart contracts. Άνοιξε μια φάση, κάνε τα βήματα και τσέκαρέ τα.
-          Δεν ξέρεις πού να ξεκινήσεις; <a href={href('start/')}>Κάνε 4 γρήγορες ερωτήσεις</a>.
+          {guide.roadmapLead} Δεν ξέρεις πού να ξεκινήσεις;
+          <a href={href(`${track.slug}/start/`)}>Κάνε {guide.questions.length} γρήγορες ερωτήσεις</a>.
         </p>
       </div>
       <div class="rm-progress">
@@ -29,11 +41,11 @@ const reqTotal = phases.reduce((n, p) => n + p.data.steps.filter((s) => s.requir
     </header>
 
     <div class="rm-layout">
-      <section class="rm-graph" aria-label="Οι φάσεις του οδηγού">
-        <Graph phases={phases} />
+      <section class="rm-graph" aria-label={`${guide.allUnits} του οδηγού`}>
+        <Graph phases={phases} track={track} />
       </section>
       <div class="rm-side">
-        <Legend />
+        <Legend track={track} branched={branched} />
         <div class="reset" data-reset>
           <button class="btn btn--ghost reset__open" type="button" data-reset-open aria-controls="reset-confirm" aria-expanded="false">
             <Icon name="reset" size={17} />
@@ -54,7 +66,7 @@ const reqTotal = phases.reduce((n, p) => n + p.data.steps.filter((s) => s.requir
 </Base>
 
 <script>
-  import { resetProgress } from '../scripts/progress';
+  import { resetProgress } from '../../scripts/progress';
 
   const open = document.querySelector<HTMLButtonElement>('[data-reset-open]')!;
   const panel = document.querySelector<HTMLElement>('[data-reset-panel]')!;

@@ -1,8 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
-import Base from '../layouts/Base.astro';
-import Icon from '../components/Icon.astro';
-import { phaseHref } from '../lib/site';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import { phaseHref } from '../../lib/site';
+import { getTrack } from '../../lib/tracks';
+
+const track = getTrack('blockchain');
 
 const projects = await getCollection('projects');
 const statusKey = {
@@ -13,7 +16,7 @@ const statusKey = {
 } as const;
 ---
 
-<Base title="Ομαδικά Projects" description="Τα projects που χτίζει η ομάδα Blockchain του Democritus Sec Team. Εκεί εφαρμόζεις ό,τι έμαθες στον οδηγό.">
+<Base title="Ομαδικά Projects" description="Τα projects που χτίζει η ομάδα Blockchain του Democritus Sec Team. Εκεί εφαρμόζεις ό,τι έμαθες στον οδηγό." track={track}>
   <div class="wrap page">
     <header class="pj-head">
       <h1>Ομαδικά Projects</h1>
@@ -48,7 +51,7 @@ const statusKey = {
                 <ul>
                   {p.data.phases.map((n) => (
                     <li>
-                      <a href={phaseHref(n)}>Φάση {n}</a>
+                      <a href={phaseHref('blockchain', n)}>Φάση {n}</a>
                     </li>
                   ))}
                 </ul>

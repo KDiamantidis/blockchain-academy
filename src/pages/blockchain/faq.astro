@@ -1,8 +1,11 @@
 ---
-import Base from '../layouts/Base.astro';
-import Icon from '../components/Icon.astro';
-import Join from '../components/Join.astro';
-import { href } from '../lib/site';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Join from '../../components/Join.astro';
+import { href } from '../../lib/site';
+import { getTrack } from '../../lib/tracks';
+
+const track = getTrack('blockchain');
 
 const rules = [
   {
@@ -29,7 +32,7 @@ const rules = [
 ];
 ---
 
-<Base title="Πώς δουλεύουμε" description="Οι κανόνες της ομάδας Blockchain: βοήθεια, AI, GitHub και ασφάλεια.">
+<Base title="Πώς δουλεύουμε" description="Οι κανόνες της ομάδας Blockchain: βοήθεια, AI, GitHub και ασφάλεια." track={track}>
   <div class="wrap wrap--narrow page">
     <header>
       <h1>Πώς δουλεύουμε</h1>
@@ -97,7 +100,7 @@ const rules = [
         <summary>Πρέπει να κάνω όλες τις φάσεις με τη σειρά;<span class="faq__icon"><Icon name="plus" size={18} /></span></summary>
         <div class="faq__a">
           <p>
-            Όχι απαραίτητα. Αν ξέρεις ήδη κάποια πράγματα, κάνε το <a href={href('start/')}>quiz</a> και ξεκίνα πιο μπροστά. Οι
+            Όχι απαραίτητα. Αν ξέρεις ήδη κάποια πράγματα, κάνε το <a href={href('blockchain/start/')}>quiz</a> και ξεκίνα πιο μπροστά. Οι
             Φάσεις 3 και 6 γίνονται παράλληλα με άλλες. Τα υποχρεωτικά βήματα όμως υπάρχουν για λόγο: μην τα προσπερνάς.
           </p>
         </div>
@@ -140,7 +143,7 @@ const rules = [
         <div class="faq__a">
           <p>
             Μόνο στον browser σου (localStorage). Δεν έχουμε server, λογαριασμούς ή analytics. Αν αλλάξεις συσκευή ή καθαρίσεις τα
-            δεδομένα του browser, η πρόοδος δεν σε ακολουθεί. Τη μηδενίζεις από το <a href={href('roadmap/')}>roadmap</a>.
+            δεδομένα του browser, η πρόοδος δεν σε ακολουθεί. Τη μηδενίζεις από το <a href={href('blockchain/roadmap/')}>roadmap</a>.
           </p>
         </div>
       </details>

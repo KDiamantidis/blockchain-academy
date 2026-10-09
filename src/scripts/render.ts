@@ -49,11 +49,11 @@ function renderBlocks() {
     if (!hasAnyProgress(state)) return;
     const label = a.querySelector('[data-resume-label]');
     if (current === null) {
-      a.href = a.dataset.projectsHref!;
-      if (label) label.textContent = 'Δες τα ομαδικά projects';
+      a.href = a.dataset.exitHref!;
+      if (label) label.textContent = a.dataset.exitLabel!;
     } else {
       a.href = a.dataset.phaseBase!.replace('__N__', String(current));
-      if (label) label.textContent = `Συνέχισε στη Φάση ${current}`;
+      if (label) label.textContent = `Συνέχισε ${a.dataset.unitIn} ${current}`;
     }
   });
 

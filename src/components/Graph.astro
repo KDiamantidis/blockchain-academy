@@ -1,30 +1,41 @@
 ---
 import Icon from './Icon.astro';
-import { GENESIS_HASH, blockHash, blockLabel, href, parentOf, phaseHref, plural, shortHash, type Phase } from '../lib/site';
+import { GENESIS_HASH, addr, blockHash, linkTo, parentOf, phaseHref, plural, shortHash, type Phase } from '../lib/site';
+import type { GuidedTrack } from '../lib/tracks';
 
 interface Props {
   phases: Phase[];
+  track: GuidedTrack;
   variant?: 'full' | 'mini';
   headingLevel?: 'h2' | 'h3';
 }
 
-const { phases, variant = 'full', headingLevel = 'h2' } = Astro.props;
+const { phases, track, variant = 'full', headingLevel = 'h2' } = Astro.props;
+const { guide } = track;
 const H = headingLevel;
 const full = variant === 'full';
+// Only the blockchain guide has parallel phases; its hand-placed grid lives in the styles below. Every other guide is a straight chain.
+const branched = phases.some((p) => p.data.parallel);
+const exitHref = linkTo(guide.exit.href);
+const exitAttrs = guide.exit.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
+type Link = { area: string; from: number; kind: 'main' | 'side'; label?: string };
 // A link turns solid once the block it leaves from is confirmed.
-const links: { area: string; from: number; kind: 'main' | 'side'; label?: string }[] = [
-  { area: 'e01', from: 0, kind: 'main' },
-  { area: 'e12', from: 1, kind: 'main' },
-  { area: 'e23', from: 2, kind: 'side', label: 'παράλληλα' },
-  { area: 'e24', from: 2, kind: 'main' },
-  { area: 'e36', from: 3, kind: 'side', label: 'παράλληλα' },
-  { area: 'e45', from: 4, kind: 'main' },
-  { area: 'e5x', from: 5, kind: 'main' },
-];
+const links: Link[] = branched
+  ? [
+      { area: 'e01', from: 0, kind: 'main' },
+      { area: 'e12', from: 1, kind: 'main' },
+      { area: 'e23', from: 2, kind: 'side', label: 'παράλληλα' },
+      { area: 'e24', from: 2, kind: 'main' },
+      { area: 'e36', from: 3, kind: 'side', label: 'παράλληλα' },
+      { area: 'e45', from: 4, kind: 'main' },
+      { area: 'e5x', from: 5, kind: 'main' },
+    ]
+  : phases.map((p) => ({ area: `e${p.data.order}`, from: p.data.order, kind: 'main' }));
+const linkFrom = (order: number) => links.find((l) => !branched && l.from === order);
 ---
 
-<div class:list={['graph', `graph--${variant}`]}>
+<div class:list={['graph', `graph--${variant}`, { 'graph--linear': !branched }]}>
   {
     phases.map((p) => {
       const parent = parentOf(p, phases);
@@ -33,25 +44,26 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
       const reqCount = p.data.steps.filter((s) => s.required).length;
       const cells = full ? p.data.steps : p.data.steps.filter((s) => s.required);
       return (
+        <Fragment>
         <article
           class:list={['blk', { 'blk--par': Boolean(p.data.parallel) }]}
-          style={`grid-area: b${p.data.order}`}
+          style={branched ? `grid-area: b${p.data.order}` : undefined}
           data-phase={p.data.order}
           data-state="todo"
         >
           <div class="blk__head">
             <div class="blk__row">
-              <span class="blk__phase">Φάση {p.data.order}</span>
-              <span class="addr blk__num">{blockLabel(p.data.order)}</span>
+              <span class="blk__phase">{guide.unit} {p.data.order}</span>
+              <span class="addr blk__num">{addr(track, p.data.order)}</span>
               <span class="blk__status">
                 <span class="tag tag--here blk__here">εδώ είσαι</span>
                 <span class="blk__confirmed">
-                  <Icon name="check" size={13} /> confirmed
+                  <Icon name="check" size={13} /> {guide.doneLabel}
                 </span>
                 <span class="blk__pending">pending</span>
               </span>
             </div>
-            <div class="blk__hashes addr" aria-hidden="true">
+            {guide.hashes && <div class="blk__hashes addr" aria-hidden="true">
               <span title={hash}>
                 <span class="blk__k">hash</span> {shortHash(hash)}
               </span>
@@ -60,12 +72,12 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
                   <span class="blk__k">prevHash</span> {shortHash(prevHash)}
                 </span>
               )}
-            </div>
+            </div>}
           </div>
           <div class="blk__body">
             <H class="blk__title">
-              <a href={phaseHref(p.data.order)} class="blk__link">
-                <span class="visually-hidden">Φάση {p.data.order}: </span>
+              <a href={phaseHref(track.slug, p.data.order)} class="blk__link">
+                <span class="visually-hidden">{guide.unit} {p.data.order}: </span>
                 <span class="blk__name">{p.data.title}</span>
                 {!full && (
                   <span class="visually-hidden">
@@ -91,12 +103,19 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
             </div>
           </div>
         </article>
+        {linkFrom(p.data.order) && (
+          <div class="link link--main" data-edge-from={p.data.order} aria-hidden="true">
+            <span class="link__chain" />
+            <span class="link__fill" />
+          </div>
+        )}
+        </Fragment>
       );
     })
   }
 
   {
-    links.map((l) => (
+    branched && links.map((l) => (
       <div
         class:list={['link', `link--${l.kind}`, `link--${l.area}`]}
         style={`grid-area: ${l.area}`}
@@ -109,9 +128,9 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
       </div>
     ))
   }
-  <div class="link-gap" aria-hidden="true"></div>
+  {branched && <div class="link-gap" aria-hidden="true"></div>}
 
-  <a class="blk blk--exit" style="grid-area: x" href={href('projects/')}>
+  <a class="blk blk--exit" style={branched ? 'grid-area: x' : undefined} href={exitHref} {...exitAttrs}>
     <div class="blk__head">
       <div class="blk__row">
         <span class="blk__phase">Τέλος</span>
@@ -120,9 +139,10 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
     </div>
     <div class="blk__body blk__body--exit">
       <span class="blk__exit-text">
-        {full ? 'Τελείωσες τον οδηγό; Δες τα ομαδικά projects' : 'Ομαδικά projects'}
+        {full ? guide.exit.long : guide.exit.short}
+        {guide.exit.external && <span class="visually-hidden">(ανοίγει σε νέα καρτέλα)</span>}
       </span>
-      <Icon name="arrow-right" size={18} />
+      <Icon name={guide.exit.external ? 'external' : 'arrow-right'} size={18} />
     </div>
   </a>
 </div>
@@ -158,6 +178,19 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
     --col-gap: 44px;
   }
 
+  .graph--linear {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .graph--linear.graph--full {
+    max-width: 620px;
+  }
+
+  .graph--linear.graph--mini {
+    --link-h: 16px;
+  }
+
   .link-gap {
     display: none;
   }
@@ -172,7 +205,7 @@ const links: { area: string; from: number; kind: 'main' | 'side'; label?: string
     min-width: 0;
   }
 
-  .blk[data-phase='6'] {
+  .graph:not(.graph--linear) .blk[data-phase='6'] {
     align-self: start;
   }
 

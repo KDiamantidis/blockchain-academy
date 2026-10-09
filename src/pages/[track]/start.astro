@@ -1,60 +1,39 @@
 ---
-import Base from '../layouts/Base.astro';
-import Icon from '../components/Icon.astro';
-import { getPhases, href, phaseHref } from '../lib/site';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import { getPhases, href, phaseHref } from '../../lib/site';
+import { GUIDED, type GuidedTrack } from '../../lib/tracks';
 
-type Option = { label: string; next?: string; result?: number; note?: string };
-type Question = { id: string; text: string; help?: string; options: Option[] };
+export function getStaticPaths() {
+  return GUIDED.map((track) => ({ params: { track: track.slug }, props: { track } }));
+}
 
-const questions: Question[] = [
-  {
-    id: 'q1',
-    text: 'Πόσο κώδικα έχεις γράψει μέχρι τώρα;',
-    options: [
-      { label: 'Καθόλου', result: 0, note: 'Κάνε και το προαιρετικό Learn JavaScript της Φάσης 0. Θα το χρειαστείς αργότερα.' },
-      { label: 'Λίγο, αλλά όχι JavaScript', result: 0, note: 'Κάνε και το Learn JavaScript της Φάσης 0. Θα το χρειαστείς στις Φάσεις 3 και 4.' },
-      { label: 'Ξέρω JavaScript (functions, arrays, objects)', next: 'q2' },
-    ],
-  },
-  {
-    id: 'q2',
-    text: 'Μπορείς να εξηγήσεις τι είναι blockchain, transaction, wallet και gas;',
-    options: [
-      { label: 'Όχι ακόμα, ή μόνο λίγο', result: 1, note: 'Βεβαιώσου ότι έχεις GitHub και ένα wallet μόνο για testnets (Φάση 0).' },
-      { label: 'Ναι, με δικά μου λόγια', next: 'q3' },
-    ],
-  },
-  {
-    id: 'q3',
-    text: 'Έχεις γράψει Solidity;',
-    options: [
-      { label: 'Όχι', result: 2, note: 'Αν σε ενδιαφέρει τι γίνεται «από κάτω», ξεκίνα παράλληλα και τη Φάση 3.' },
-      { label: 'Ναι, απλά contracts', next: 'q4' },
-    ],
-  },
-  {
-    id: 'q4',
-    text: 'Έχεις φτιάξει και ανεβάσει σε testnet ένα dApp (contract και front-end);',
-    options: [
-      { label: 'Όχι', result: 4, note: 'Αν δεν έχεις κάνει τη Φάση 3, κάν’ τη παράλληλα. Θα σε βοηθήσει πολύ στο security.' },
-      { label: 'Ναι', result: 5, note: 'Ρίξε μια ματιά στις ερωτήσεις «Πριν προχωρήσεις» των Φάσεων 2 έως 4. Αν κάπου κολλάς, γύρνα πίσω.' },
-    ],
-  },
-];
+interface Props {
+  track: GuidedTrack;
+}
 
-const phases = await getPhases();
+const { track } = Astro.props;
+const { guide } = track;
+const { questions } = guide;
+const phases = await getPhases(track.slug);
+const first = phases[0].data.order;
 const titles = Object.fromEntries(phases.map((p) => [p.data.order, p.data.title]));
-const payload = { questions, titles, phaseBase: href('phases/__N__/') };
+const payload = {
+  questions,
+  titles,
+  phaseBase: href(`${track.slug}/phases/__N__/`),
+  addrPrefix: guide.addrPrefix,
+  unit: guide.unit,
+  unitIn: guide.unitIn,
+};
 ---
 
-<Base title="Από πού ξεκινάω;" description="Τέσσερις γρήγορες ερωτήσεις για να βρεις από ποια φάση του οδηγού να ξεκινήσεις.">
+<Base title="Από πού ξεκινάω;" description={`${questions.length} γρήγορες ερωτήσεις για να βρεις από πού να ξεκινήσεις τον οδηγό ${track.name}.`} track={track}>
   <div class="wrap wrap--narrow page">
     <header class="st-head">
       <h1>Από πού ξεκινάω;</h1>
-      <p class="st-lead">
-        Μέχρι τέσσερις ερωτήσεις. Απάντα με ειλικρίνεια: αν ξεκινήσεις πιο μπροστά απ’ όσο πρέπει, θα κολλήσεις. Μπορείς πάντα να
-        γυρίσεις σε προηγούμενη φάση.
-      </p>
+      <p class="st-team addr">team/{track.handle}</p>
+      <p class="st-lead">{guide.quizIntro}</p>
     </header>
 
     <form class="quiz" data-quiz novalidate>
@@ -88,25 +67,25 @@ const payload = { questions, titles, phaseBase: href('phases/__N__/') };
           <p class="result__note" data-result-note></p>
           <div class="result__cta">
             <a class="btn" href="#" data-result-link>
-              <span data-result-link-label>Πήγαινε στη φάση</span>
+              <span data-result-link-label>Πήγαινε στον οδηγό</span>
               <Icon name="arrow-right" size={18} />
             </a>
             <button class="btn btn--ghost" type="button" data-restart>Από την αρχή</button>
           </div>
-          <p class="result__saved">Το σημειώσαμε: στο <a href={href('roadmap/')}>roadmap</a> αυτή η φάση θα φαίνεται με κίτρινο.</p>
+          <p class="result__saved">Το σημειώσαμε: στο <a href={href(`${track.slug}/roadmap/`)}>roadmap</a> αυτό το σημείο θα φαίνεται με κίτρινο.</p>
         </div>
       </div>
     </form>
 
     <noscript>
-      <p class="callout">Το quiz θέλει JavaScript. Αν δεν έχεις γράψει κώδικα, ξεκίνα από τη <a href={phaseHref(0)}>Φάση 0</a>. Αλλιώς δες το <a href={href('roadmap/')}>roadmap</a>.</p>
+      <p class="callout">Το quiz θέλει JavaScript. Ξεκίνα από την αρχή, <a href={phaseHref(track.slug, first)}>{guide.unitIn} {first}</a>, ή δες το <a href={href(`${track.slug}/roadmap/`)}>roadmap</a>.</p>
     </noscript>
 
     <aside class="callout callout--warn safety" aria-label="Κανόνες ασφαλείας">
       <Icon name="warning" size={20} />
       <div>
-        <p><strong>Οι κανόνες ασφαλείας της Φάσης 0 ισχύουν για όλους, όποια φάση κι αν σου βγει.</strong></p>
-        <p>Μόνο testnets, ποτέ πραγματικά χρήματα. Ποτέ private key ή seed phrase σε κώδικα, σε repo ή σε site.</p>
+        <p><strong>{guide.safety.title}</strong></p>
+        <p>{guide.safety.text}</p>
       </div>
     </aside>
 
@@ -115,11 +94,18 @@ const payload = { questions, titles, phaseBase: href('phases/__N__/') };
 </Base>
 
 <script>
-  import { setStart } from '../scripts/progress';
+  import { setStart } from '../../scripts/progress';
 
   type Option = { label: string; next?: string; result?: number; note?: string };
   type Question = { id: string; text: string; options: Option[] };
-  const data: { questions: Question[]; titles: Record<string, string>; phaseBase: string } = JSON.parse(
+  const data: {
+    questions: Question[];
+    titles: Record<string, string>;
+    phaseBase: string;
+    addrPrefix: string;
+    unit: string;
+    unitIn: string;
+  } = JSON.parse(
     document.getElementById('quiz-data')!.textContent!,
   );
 
@@ -127,7 +113,7 @@ const payload = { questions, titles, phaseBase: href('phases/__N__/') };
   const result = form.querySelector<HTMLElement>('[data-result]')!;
   const sets = new Map(data.questions.map((q) => [q.id, form.querySelector<HTMLFieldSetElement>(`[data-q="${q.id}"]`)!]));
 
-  const pad = (n: number) => `block #${n}`;
+  const pad = (n: number) => `${data.addrPrefix}${n}`;
 
   function update(focusNext: boolean) {
     let id: string | undefined = data.questions[0].id;
@@ -159,11 +145,11 @@ const payload = { questions, titles, phaseBase: href('phases/__N__/') };
       const n = outcome.result;
       result.hidden = false;
       result.querySelector('[data-result-addr]')!.textContent = pad(n);
-      result.querySelector('[data-result-title]')!.textContent = `Φάση ${n}: ${data.titles[n]}`;
+      result.querySelector('[data-result-title]')!.textContent = `${data.unit} ${n}: ${data.titles[n]}`;
       result.querySelector('[data-result-note]')!.textContent = outcome.note ?? '';
       const link = result.querySelector<HTMLAnchorElement>('[data-result-link]')!;
       link.href = data.phaseBase.replace('__N__', String(n));
-      link.querySelector('[data-result-link-label]')!.textContent = `Πήγαινε στη Φάση ${n}`;
+      link.querySelector('[data-result-link-label]')!.textContent = `Πήγαινε ${data.unitIn} ${n}`;
       setStart(n);
       if (focusNext) result.focus();
     } else {
@@ -184,6 +170,9 @@ const payload = { questions, titles, phaseBase: href('phases/__N__/') };
 <style>
   .page {
     padding-top: 48px;
+  }
+  .st-team {
+    margin-top: 6px;
   }
   .st-lead {
     margin-top: 12px;

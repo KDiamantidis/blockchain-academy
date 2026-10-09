@@ -1,20 +1,28 @@
 ---
 import Icon from './Icon.astro';
 import { REPO_URL, href } from '../lib/site';
+import type { GuidedTrack } from '../lib/tracks';
+
+interface Props {
+  track?: GuidedTrack;
+}
+
+const { track } = Astro.props;
 ---
 
 <footer class="site-footer">
   <div class="wrap foot">
     <div class="foot__col">
-      <p class="foot__name">Democritus Sec Team <span>·</span> Blockchain</p>
+      <p class="foot__name">Democritus Sec Team{track && <> <span>·</span> {track.name}</>}</p>
       <p class="foot__sub">Δημοκρίτειο Πανεπιστήμιο Θράκης</p>
     </div>
     <p class="foot__help">
       <Icon name="chat" size={17} />
-      <span>Κόλλησες; Γράψε στο <strong class="mono">#block-chain</strong> στο Discord της ομάδας.</span>
+      <span>Κόλλησες; Γράψε στο <strong class="mono">{track?.guide.channel ?? '#chat'}</strong> στο Discord της ομάδας.</span>
     </p>
     <ul class="foot__links">
-      <li><a href={href('faq/')}>Πώς δουλεύουμε</a></li>
+      {track && <li><a href={href()}>Όλες οι ομάδες</a></li>}
+      {track?.slug === 'blockchain' && <li><a href={href('blockchain/faq/')}>Πώς δουλεύουμε</a></li>}
       <li><a href={REPO_URL} rel="noopener">Κώδικας στο GitHub</a></li>
     </ul>
     <p class="foot__privacy">

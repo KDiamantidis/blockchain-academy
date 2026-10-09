@@ -1,35 +1,53 @@
 ---
 import { getCollection, render } from 'astro:content';
-import Base from '../../layouts/Base.astro';
-import Icon from '../../components/Icon.astro';
-import Progress from '../../components/Progress.astro';
-import { REPO_URL, blockHash, blockLabel, getPhases, href, phaseHref, plural, shortHash, type Phase } from '../../lib/site';
+import Base from '../../../layouts/Base.astro';
+import Icon from '../../../components/Icon.astro';
+import Progress from '../../../components/Progress.astro';
+import { REPO_URL, addr, blockHash, getPhases, href, linkTo, phaseHref, plural, shortHash, type Phase } from '../../../lib/site';
+import { GUIDED, type GuidedTrack } from '../../../lib/tracks';
 
 export async function getStaticPaths() {
-  const phases = await getPhases();
-  return phases.map((phase, i) => ({
-    params: { order: String(phase.data.order) },
-    props: { phase, prev: phases[i - 1], next: phases[i + 1] },
-  }));
+  const paths = [];
+  for (const track of GUIDED) {
+    const phases = await getPhases(track.slug);
+    paths.push(
+      ...phases.map((phase, i) => ({
+        params: { track: track.slug, order: String(phase.data.order) },
+        props: { track, phase, prev: phases[i - 1], next: phases[i + 1] },
+      })),
+    );
+  }
+  return paths;
 }
 
 interface Props {
+  track: GuidedTrack;
   phase: Phase;
   prev?: Phase;
   next?: Phase;
 }
 
-const { phase, prev, next } = Astro.props;
+const { track, phase, prev, next } = Astro.props;
+const { guide } = track;
 const { data } = phase;
-const { Content } = await render(phase);
+const { Content, headings } = await render(phase);
 const hasBody = Boolean(phase.body?.trim());
+// Steps that point at a numbered heading of the phase's own text turn the page into a chapter to read: steps first, text below.
+const reading = data.steps.some((s) => s.anchor);
+const anchorHref = (n: string) => {
+  const h = headings.find((x) => x.text.startsWith(`${n} `));
+  if (!h) throw new Error(`${phase.id}: no heading starts with "${n}"`);
+  return `#${h.slug}`;
+};
+const unitLabel = (p: Phase) => `${guide.unit} ${p.data.order}`;
+const exitHref = linkTo(guide.exit.href);
 const glossary = await getCollection('glossary');
 const terms = data.terms
   .map((id) => glossary.find((g) => g.id === id))
   .filter((g): g is NonNullable<typeof g> => Boolean(g));
 const reqTotal = data.steps.filter((s) => s.required).length;
 const PROJECTS_LINK = 'Ομαδικά Projects';
-const editUrl = `${REPO_URL}/edit/main/src/content/phases/${phase.id}.md`;
+const editUrl = `${REPO_URL}/edit/main/src/content/tracks/${phase.id}.md`;
 
 type Indexed = { step: (typeof data.steps)[number]; n: number };
 const segments: { group?: string; items: Indexed[] }[] = [];
@@ -41,22 +59,22 @@ data.steps.forEach((step, i) => {
 const grouped = segments.some((seg) => seg.group);
 const StepHeading = grouped ? 'h4' : 'h3';
 
-const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.data.order}: ${p.data.title}`;
+const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}${unitLabel(p)}: ${p.data.title}`;
 ---
 
-<Base title={`Φάση ${data.order}: ${data.title}`} description={data.goal}>
+<Base title={`${unitLabel(phase)}: ${data.title}`} description={data.goal} track={track}>
   <div class="wrap page">
     <nav class="crumbs addr" aria-label="Διαδρομή">
-      <a href={href('roadmap/')}>roadmap</a>
+      <a href={href(`${track.slug}/roadmap/`)}>roadmap</a>
       <span aria-hidden="true">/</span>
-      <span aria-current="page">Φάση {data.order}</span>
+      <span aria-current="page">{unitLabel(phase)}</span>
     </nav>
 
     <header class="ph-head" data-phase={data.order}>
       <div class="ph-head__strip">
-        <span class="ph-head__phase">Φάση {data.order}</span>
-        <span class="addr">{blockLabel(data.order)}</span>
-        <span class="addr ph-head__hash" title={blockHash(data.order)} aria-hidden="true">hash {shortHash(blockHash(data.order))}</span>
+        <span class="ph-head__phase">{unitLabel(phase)}</span>
+        <span class="addr">{addr(track, data.order)}</span>
+        {guide.hashes && <span class="addr ph-head__hash" title={blockHash(data.order)} aria-hidden="true">hash {shortHash(blockHash(data.order))}</span>}
         <span class="addr ph-head__count">
           {data.steps.length} {plural(data.steps.length, 'βήμα', 'βήματα')} · {reqTotal} {plural(reqTotal, 'υποχρεωτικό', 'υποχρεωτικά')}
         </span>
@@ -79,7 +97,7 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
             )
           }
         </dl>
-        <Progress label="Πρόοδος φάσης" phase={data.order} reqTotal={reqTotal} />
+        <Progress label={reading ? 'Πρόοδος κεφαλαίου' : 'Πρόοδος φάσης'} phase={data.order} reqTotal={reqTotal} />
         <p class="storage-note" data-storage-note hidden>
           <Icon name="info" size={16} /> Ο browser σου δεν επιτρέπει αποθήκευση. Τα τσεκ θα χαθούν όταν κλείσεις τη σελίδα.
         </p>
@@ -87,7 +105,7 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
     </header>
 
     {
-      hasBody && (
+      hasBody && !reading && (
         <section class="ph-notes prose" aria-label="Σημειώσεις">
           <Content />
         </section>
@@ -95,7 +113,8 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
     }
 
     <section class="ph-section" aria-labelledby="steps-title">
-      <h2 id="steps-title">Βήματα</h2>
+      <h2 id="steps-title">{reading ? 'Ενότητες' : 'Βήματα'}</h2>
+      {reading && <p class="ph-section__lead">Διάβασε κάθε ενότητα στο κείμενο παρακάτω και τσέκαρέ τη όταν την τελειώσεις.</p>}
       <p class="resume" data-next-step hidden>
         <a href="#" data-next-step-link>
           <Icon name="arrow-right" size={16} />
@@ -116,7 +135,7 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
             <ol class="steps">
               {seg.items.map(({ step: s, n }) => (
                 <li
-                  class:list={['step', s.required ? 'step--req' : 'step--opt']}
+                  class:list={['step', s.required ? 'step--req' : 'step--opt', { 'step--anchor': s.anchor }]}
                   id={`step-${s.id}`}
                   data-step-row
                   data-step-num={`${data.order}.${n}`}
@@ -135,13 +154,17 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
                     </label>
                   </div>
                   <div class="step__body">
-                    <div class="step__meta">
+                    {!s.anchor && (
+                      <div class="step__meta">
                       {s.required ? <span class="tag tag--req">Υποχρεωτικό</span> : <span class="tag tag--opt">Προαιρετικό</span>}
                       {s.provider && <span class="addr">{s.provider}</span>}
                       {s.duration && <span class="addr step__dur">{s.duration}</span>}
                     </div>
+                    )}
                     <StepHeading class="step__title">
-                      {s.url ? (
+                      {s.anchor ? (
+                        <a href={anchorHref(s.anchor)}>{s.title}</a>
+                      ) : s.url ? (
                         <a href={s.url} target="_blank" rel="noopener noreferrer">
                           {s.title}
                           <Icon name="external" size={15} class="step__ext" />
@@ -174,7 +197,7 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
                         <span>
                           {s.highlight
                             .split(PROJECTS_LINK)
-                            .map((part, i) => (i ? <><a href={href('projects/')}>{PROJECTS_LINK}</a>{part}</> : part))}
+                            .map((part, i) => (i ? <><a href={href(`${track.slug}/projects/`)}>{PROJECTS_LINK}</a>{part}</> : part))}
                         </span>
                       </p>
                     )}
@@ -193,10 +216,20 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
       }
     </section>
 
+    {
+      hasBody && reading && (
+        <section class="ph-section ph-text prose" aria-label="Κείμενο">
+          <Content />
+        </section>
+      )
+    }
+
     <section class="ph-section" aria-labelledby="checks-title">
       <h2 id="checks-title">Πριν προχωρήσεις</h2>
       <p class="ph-section__lead">
-        Αν μπορείς να απαντήσεις σε αυτές τις ερωτήσεις με δικά σου λόγια, {next ? 'μπορείς να προχωρήσεις στην επόμενη φάση.' : <>τελείωσες τον οδηγό και μπορείς να μπεις στα <a href={href('projects/')}>{PROJECTS_LINK}</a>.</>} Αν όχι, γύρνα πίσω στο υλικό ή ρώτα στο <strong class="mono">#block-chain</strong>.
+        Αν μπορείς να απαντήσεις σε αυτές τις ερωτήσεις με δικά σου λόγια,{' '}
+        {next ? `μπορείς να προχωρήσεις ${guide.nextUnit}.` : <>τελείωσες τον οδηγό. Επόμενο βήμα: <a href={exitHref}>{guide.exit.short}</a>.</>} Αν
+        όχι, γύρνα πίσω στο υλικό ή ρώτα στο <strong class="mono">{guide.channel}</strong>.
       </p>
       <ol class="checks">
         {data.checks.map((q) => <li>{q}</li>)}
@@ -226,7 +259,7 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
           <ul class="terms">
             {terms.map((t) => (
               <li>
-                <a href={href(`glossary/#${t.id}`)}>{t.data.term}</a>
+                <a href={href(`${track.slug}/glossary/#${t.id}`)}>{t.data.term}</a>
               </li>
             ))}
           </ul>
@@ -234,38 +267,38 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
       )
     }
 
-    <nav class="ph-nav" aria-label="Φάσεις">
+    <nav class="ph-nav" aria-label={guide.allUnits}>
       {
         prev ? (
-          <a class="ph-nav__link ph-nav__link--prev" href={phaseHref(prev.data.order)}>
+          <a class="ph-nav__link ph-nav__link--prev" href={phaseHref(track.slug, prev.data.order)}>
             <span class="addr">
-              <Icon name="arrow-left" size={15} /> {blockLabel(prev.data.order)}
+              <Icon name="arrow-left" size={15} /> {addr(track, prev.data.order)}
             </span>
             <span class="ph-nav__title">{navLabel(prev)}</span>
           </a>
         ) : (
-          <a class="ph-nav__link ph-nav__link--prev" href={href('roadmap/')}>
+          <a class="ph-nav__link ph-nav__link--prev" href={href(`${track.slug}/roadmap/`)}>
             <span class="addr">
               <Icon name="arrow-left" size={15} /> roadmap
             </span>
-            <span class="ph-nav__title">Όλες οι φάσεις</span>
+            <span class="ph-nav__title">{guide.allUnits}</span>
           </a>
         )
       }
       {
         next ? (
-          <a class="ph-nav__link ph-nav__link--next" href={phaseHref(next.data.order)}>
+          <a class="ph-nav__link ph-nav__link--next" href={phaseHref(track.slug, next.data.order)}>
             <span class="addr">
-              {blockLabel(next.data.order)} <Icon name="arrow-right" size={15} />
+              {addr(track, next.data.order)} <Icon name="arrow-right" size={15} />
             </span>
             <span class="ph-nav__title">{navLabel(next)}</span>
           </a>
         ) : (
-          <a class="ph-nav__link ph-nav__link--next ph-nav__link--exit" href={href('projects/')}>
+          <a class="ph-nav__link ph-nav__link--next ph-nav__link--exit" href={exitHref}>
             <span class="addr">
               head <Icon name="arrow-right" size={15} />
             </span>
-            <span class="ph-nav__title">Τελείωσες τον οδηγό; Δες τα ομαδικά projects</span>
+            <span class="ph-nav__title">{guide.exit.long}</span>
           </a>
         )
       }
@@ -394,6 +427,21 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
   .ph-section {
     margin-top: 56px;
   }
+  .ph-text {
+    padding-top: 40px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .ph-text :global(h2) {
+    margin-top: 48px;
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  .ph-text :global(h2:first-of-type) {
+    margin-top: 0;
+  }
+  .ph-text :global(h3) {
+    margin-top: 28px;
+    font-size: 1.1rem;
+  }
   .ph-section > h2 {
     margin-bottom: 16px;
   }
@@ -484,6 +532,18 @@ const navLabel = (p: Phase) => `${p.data.parallel ? '∥ ' : ''}Φάση ${p.dat
     gap: 8px;
     padding: 16px 20px 18px;
     min-width: 0;
+  }
+  .step--anchor .step__gutter {
+    grid-auto-flow: column;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .step--anchor .step__body {
+    align-content: center;
+    padding-block: 10px;
+  }
+  .step--anchor .step__title {
+    font-size: 1.05rem;
   }
   .step__meta {
     display: flex;

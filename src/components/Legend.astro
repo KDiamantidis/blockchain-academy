@@ -1,5 +1,14 @@
 ---
 import Icon from './Icon.astro';
+import type { GuidedTrack } from '../lib/tracks';
+
+interface Props {
+  track: GuidedTrack;
+  branched: boolean;
+}
+
+const { track, branched } = Astro.props;
+const { guide } = track;
 ---
 
 <details class="legend" open data-legend>
@@ -12,12 +21,12 @@ import Icon from './Icon.astro';
   <ul class="legend__list">
     <li>
       <svg class="legend__sym" viewBox="0 0 36 12" aria-hidden="true"><g fill="none" stroke="var(--green)" stroke-width="2"><rect x="1" y="2" width="11" height="8" rx="4"></rect><rect x="23" y="2" width="11" height="8" rx="4"></rect></g><rect x="10" y="5" width="15" height="2" rx="1" fill="var(--green)"></rect></svg>
-      <span><strong>Πράσινη αλυσίδα:</strong> η κύρια διαδρομή, οι φάσεις με τη σειρά. Γίνεται έντονη όταν επιβεβαιωθεί το block από πάνω.</span>
+      <span><strong>Πράσινη αλυσίδα:</strong> η κύρια διαδρομή, {guide.units} με τη σειρά. Γίνεται έντονη όταν ολοκληρώσεις ό,τι είναι από πάνω της.</span>
     </li>
-    <li>
+    {branched && <li>
       <svg class="legend__sym" viewBox="0 0 36 12" aria-hidden="true"><g fill="none" stroke="var(--blue)" stroke-width="2"><rect x="1" y="2" width="11" height="8" rx="4"></rect><rect x="23" y="2" width="11" height="8" rx="4"></rect></g><rect x="10" y="5" width="15" height="2" rx="1" fill="var(--blue)"></rect></svg>
       <span><strong>Μπλε αλυσίδα:</strong> παράλληλη φάση, ένα πλαϊνό κλαδί που κάνεις μαζί με άλλη φάση.</span>
-    </li>
+    </li>}
     <li>
       <span class="legend__sym legend__cells" aria-hidden="true">
         <span class="lc lc--req lc--done"></span><span class="lc lc--req"></span><span class="lc lc--opt"></span>
@@ -26,19 +35,19 @@ import Icon from './Icon.astro';
     </li>
     <li>
       <span class="legend__sym legend__here" aria-hidden="true"></span>
-      <span><strong>Κίτρινο, «εδώ είσαι»:</strong> η φάση όπου βρίσκεσαι. Εκεί που σε έστειλε το quiz ή η πρώτη με υποχρεωτικά βήματα χωρίς τσεκ.</span>
+      <span><strong>Κίτρινο, «εδώ είσαι»:</strong> εκεί όπου βρίσκεσαι. Εκεί που σε έστειλε το quiz ή το πρώτο σημείο με υποχρεωτικά βήματα χωρίς τσεκ.</span>
     </li>
-    <li>
+    {guide.hashes && <Fragment><li>
       <span class="legend__sym legend__word addr" aria-hidden="true">hash</span>
       <span><strong>hash:</strong> το «δακτυλικό αποτύπωμα» του block, μοναδικό για κάθε φάση.</span>
     </li>
     <li>
       <span class="legend__sym legend__word addr" aria-hidden="true">prev</span>
       <span><strong>prevHash:</strong> το hash του προηγούμενου block. Έτσι τα blocks δένονται σε αλυσίδα.</span>
-    </li>
+    </li></Fragment>}
     <li>
       <span class="legend__sym legend__status" aria-hidden="true"><span class="legend__ok"></span><span class="legend__pend"></span></span>
-      <span><strong>confirmed / pending:</strong> confirmed όταν τελειώσεις όλα τα υποχρεωτικά βήματα. Μέχρι τότε το block είναι pending (διακεκομμένο).</span>
+      <span><strong>{guide.doneLabel} / pending:</strong> {guide.doneLabel} όταν τελειώσεις όλα τα υποχρεωτικά βήματα. Μέχρι τότε είναι pending (διακεκομμένο περίγραμμα).</span>
     </li>
   </ul>
 </details>

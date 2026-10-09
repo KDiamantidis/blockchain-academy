@@ -2,20 +2,24 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_NAME, getPhases, href, stepsPayload } from '../lib/site';
+import { TEAM_NAME, getPhases, href, stepsPayload } from '../lib/site';
+import type { GuidedTrack } from '../lib/tracks';
 
 interface Props {
   title?: string;
   description?: string;
+  track?: GuidedTrack;
 }
 
 const {
   title,
-  description = 'Οδηγός βήμα βήμα από το μηδέν μέχρι το security των smart contracts, από την ομάδα Blockchain του Democritus Sec Team (ΔΠΘ).',
+  description = 'Η φοιτητική ομάδα κυβερνοασφάλειας του Δημοκρίτειου Πανεπιστημίου Θράκης: εκπαίδευση, CTF και έρευνα.',
+  track,
 } = Astro.props;
 
-const fullTitle = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME}: από το μηδέν στο smart contract security`;
-const phases = await getPhases();
+const siteName = track ? `${TEAM_NAME} · ${track.name}` : TEAM_NAME;
+const fullTitle = title ? `${title} · ${siteName}` : siteName;
+const phases = track ? await getPhases(track.slug) : [];
 const phaseData = phases.map((p) => ({ order: p.data.order, steps: stepsPayload(p) }));
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -53,12 +57,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body>
     <a class="skip" href="#main">Μετάβαση στο περιεχόμενο</a>
-    <Header />
+    <Header track={track} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <Footer />
-    <script type="application/json" id="phase-data" set:html={JSON.stringify(phaseData)} />
+    <Footer track={track} />
+    <script type="application/json" id="phase-data" data-key={track?.guide.storageKey} set:html={JSON.stringify(phaseData)} />
     <script>
       import '../scripts/render';
     </script>
